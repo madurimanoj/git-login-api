@@ -12,21 +12,20 @@ $(document).ready(el => {
     const $listRoot = $('.collection')
 
     const keydown$ = Rx.Observable.fromEvent($($(document)), 'keydown')
-    const [userNavigation$, selection$] = keydown$.pluck("which")
+    const [arrowScrolls$, enterKeys$] = keydown$.pluck("which")
         .filter(key => [38, 40, 13].includes(key))
-        .partition(key => key % 2 === 0)
+        .partition(key => key % 2 === 0)      // enter code is odd, up and down are even
 
-    let [scrollDown$, scrollUp$] = userNavigation$.partition(key => key === 40)
+    arrowScrolls$.map(key => key === 40 ? ['first-child', $.fn.next] : ['last-child', $.fn.prev])
+      .forEach(args => {
+        const $lastActive = $(`.user.selected`).removeClass('selected')
+        $nextActive = $lastActive.length ? args[1].apply($lastActive) : $(`.user:${args[0]}`)
+        $nextActive.addClass('selected')
+      })
 
-    scrollDown$.forEach(() =>
-      $('.user:not(:last-child).selected').removeClass('selected').next().addClass('selected'))
-
-    scrollUp$.forEach(() =>
-      $('.user:not(:first-child).selected').removeClass('selected').prev().addClass('selected'))
-
-    selection$.forEach(() => {
-      if ($('.selected').length > 0) {
-        var selected = $('.selected')
+    enterKeys$.forEach((e) => {
+      const $selected = $('.selected')
+      if ($selected.length > 0) {
         $input.val(selected.text())
         $results.empty()
       }
@@ -35,22 +34,18 @@ $(document).ready(el => {
     Rx.Observable.fromEvent($input, 'blur')
       .forEach(() => $listRoot.empty())
 
-
-    var keyup$ = Rx.Observable.fromEvent($input, 'keyup')
+    const keyup$ = Rx.Observable.fromEvent($input, 'keyup')
       .pluck("target", "value")
       .filter(text => text.length > 2)
-      .debounceTime(500)
+      .debounceTime(350)
       .distinctUntilChanged()
 
-    var suggestedUsers$ = keyup$.switchMap(getSuggestedUsers)
-      .pluck('data')
-      .do(res => console.log($input))
+    const suggestedUsers$ = keyup$.switchMap(getSuggestedUsers).pluck('data')
 
     suggestedUsers$.forEach(res => {
         $listRoot
           .empty()
           .append($.map(res, (v) => $(`<a href="#!" class="collection-item user">${v.login}</a>`)))
-          $('.collection-item:first-child').addClass('selected')
       })
     }
 
