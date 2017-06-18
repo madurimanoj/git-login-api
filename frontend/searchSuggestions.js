@@ -29,8 +29,9 @@ const searchSuggestions = () => {
     .forEach(e => {
       $input.val($(".selected").text())
       $('form').trigger('submit')
-      $input.blur()
     })
+
+  Rx.Observable.fromEvent($('form'), 'submit').subscribe(() => $input.blur())
 
   multicasted.connect()
 
@@ -40,6 +41,7 @@ const searchSuggestions = () => {
 
   const clearSuggestions$ = Rx.Observable.fromEvent($input, 'blur')
     .merge(clearSearchField$, multicasted)
+    .do(() => $listRoot.empty())
 
   const suggestedUsers$ = suggestionRequests$ .debounceTime(350)
     .distinctUntilChanged()
@@ -47,7 +49,6 @@ const searchSuggestions = () => {
     .pluck('data')
 
   clearSuggestions$
-    .do(() => $listRoot.empty())
     .flatMap(() => suggestedUsers$.takeUntil(clearSuggestions$))
     .forEach(res => {
       $listRoot

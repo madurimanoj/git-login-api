@@ -6,6 +6,7 @@ import { prototype, formatURL } from './utils'
 
 const initiatGithubStream = () => {
   const source$ = Rx.Observable.fromEvent($('form'), 'submit')
+  const loadMoreButton$ = Rx.Observable.fromEvent($('.load-button'), 'click')
   const $input = $('#input_text')
   const subject = new Rx.Subject()
   const multicasted = source$.multicast(subject)
@@ -14,6 +15,7 @@ const initiatGithubStream = () => {
     e.preventDefault()
     return `https://api.github.com/users/${$input.val()}/followers`
   })
+  .merge(loadMoreButton$.mapTo(e.currentTarget.dataset.href))
   .map(requestUrl => $.ajax({url: requestUrl}))
 
   const userStream$ = multicasted.map(e => `https://api.github.com/users/${$input.val()}`)
@@ -40,10 +42,10 @@ const initiatGithubStream = () => {
   )
 
   const followersStream$ = followerRequests$.flatMap(res => Rx.Observable.fromPromise(res))
-    .map(res => state => state.set("followers", fromJS(res)))
+    .map(res => state => state.get("followers").concat(fromJS(res)))
 
   const initialState = new Map({
-    followers: new List,
+    followers: new List(),
     hasMore: false,
     nextPage: null,
     user: new Map()

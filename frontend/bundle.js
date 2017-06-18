@@ -16755,6 +16755,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var initiatGithubStream = function initiatGithubStream() {
   var source$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit');
+  var loadMoreButton$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.load-button'), 'click');
   var $input = (0, _jquery2.default)('#input_text');
   var subject = new _rxjs2.default.Subject();
   var multicasted = source$.multicast(subject);
@@ -16762,7 +16763,7 @@ var initiatGithubStream = function initiatGithubStream() {
   var followerRequests$ = multicasted.map(function (e) {
     e.preventDefault();
     return 'https://api.github.com/users/' + $input.val() + '/followers';
-  }).map(function (requestUrl) {
+  }).merge(loadMoreButton$.mapTo(e.currentTarget.dataset.href)).map(function (requestUrl) {
     return _jquery2.default.ajax({ url: requestUrl });
   });
 
@@ -16798,7 +16799,7 @@ var initiatGithubStream = function initiatGithubStream() {
     return _rxjs2.default.Observable.fromPromise(res);
   }).map(function (res) {
     return function (state) {
-      return state.set("followers", (0, _immutable.fromJS)(res));
+      return state.get("followers").concat((0, _immutable.fromJS)(res));
     };
   });
 
@@ -16881,7 +16882,10 @@ var searchSuggestions = function searchSuggestions() {
   }).forEach(function (e) {
     $input.val((0, _jquery2.default)(".selected").text());
     (0, _jquery2.default)('form').trigger('submit');
-    $input.blur();
+  });
+
+  _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit').subscribe(function () {
+    return $input.blur();
   });
 
   multicasted.connect();
@@ -16893,13 +16897,13 @@ var searchSuggestions = function searchSuggestions() {
       suggestionRequests$ = _Rx$Observable$fromEv4[0],
       clearSearchField$ = _Rx$Observable$fromEv4[1];
 
-  var clearSuggestions$ = _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$, multicasted);
+  var clearSuggestions$ = _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$, multicasted).do(function () {
+    return $listRoot.empty();
+  });
 
   var suggestedUsers$ = suggestionRequests$.debounceTime(350).distinctUntilChanged().switchMap(getSuggestedUsers).pluck('data');
 
-  clearSuggestions$.do(function () {
-    return $listRoot.empty();
-  }).flatMap(function () {
+  clearSuggestions$.flatMap(function () {
     return suggestedUsers$.takeUntil(clearSuggestions$);
   }).forEach(function (res) {
     $listRoot.empty().append(_jquery2.default.map(res, function (u) {

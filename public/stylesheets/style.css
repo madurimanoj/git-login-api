@@ -6,3 +6,38 @@ body {
 a {
   color: #00B7FF;
 }
+
+body {
+  height: auto;
+  background-image: url(https://s3.amazonaws.com/f.cl.ly/items/3a2h193d3W3O0L3g2U43/octocat_darkwood.jpg);
+  background-size: cover;
+  background-attachment: fixed;
+  width: 100%;
+  background-repeat: no-repeat;
+  background-color: black;
+  background-position-x: 50%;
+}
+
+.search-holder {
+  transform: translateY(5vh);
+}
+
+#input_text {
+  color: #9e9e9e;
+}
+
+#input_text:focus {
+  color: #26a69a;
+}
+
+.flex {
+  display: flex;
+}
+
+.input-field {
+  margin-right: auto;
+}
+
+.collection {
+  border: none;
+}
