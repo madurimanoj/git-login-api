@@ -1,7 +1,7 @@
 import searchSuggestions from './searchSuggestions'
-import initiatGithubStream from './githubApi'
+import initiateGithubStream from './githubApi'
 
 $(document).ready(() => {
   searchSuggestions()
-  initiatGithubStream()
+  initiateGithubStream()
 })

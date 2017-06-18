@@ -1,12 +1,19 @@
 import Rx                       from 'rxjs'
 import $                        from 'jquery'
 import { fromJS, Map, List }    from 'immutable'
-import { prototype, formatURL } from './utils'
-import snabbdom, { h }          from 'snabbdom'
+import {
+  prototype,
+  formatURL,
+  getDiffs
+}                               from './utils'
 import userCard                 from './UiComponents/userCard'
+// import snabbdom                 from 'snabbdom'
+const snabbdom = require('../node_modules/snabbdom/snabbdom');
+const h = require('snabbdom/h')
 
 
-const initiatGithubStream = () => {
+
+const initiateGithubStream = () => {
   const source$ = Rx.Observable.fromEvent($('form'), 'submit')
   const loadMoreButton$ = Rx.Observable.fromEvent($('.load-button'), 'click')
   const $input = $('#input_text')
@@ -17,7 +24,7 @@ const initiatGithubStream = () => {
     e.preventDefault()
     return `https://api.github.com/users/${$input.val()}/followers`
   })
-  .merge(loadMoreButton$.mapTo(e.currentTarget.dataset.href))
+  .merge(loadMoreButton$.map(e => e.currentTarget.dataset.href))
   .map(requestUrl => $.ajax({url: requestUrl}))
 
   const userStream$ = multicasted.map(e => `https://api.github.com/users/${$input.val()}`)
@@ -39,48 +46,54 @@ const initiatGithubStream = () => {
     res.then((data, s, xhr) => formatURL(xhr.getResponseHeader('link')))
   )
   .map(link => state =>
-    state.set("hasMore", !!link)
-      .set("nextPage", link)
+    state.set("pagination", new Map({ hasMore: !!link, nextPage: link }))
   )
 
   const followersStream$ = followerRequests$.flatMap(res => Rx.Observable.fromPromise(res))
-    .map(res => state => state.get("followers").concat(fromJS(res)))
+    .map(res => state => {
+      const newState = state.get('followers').concat(fromJS(res))
+      return state.set("followers", newState)
+    })
 
   const initialState = new Map({
     followers: new List(),
-    hasMore: false,
-    nextPage: null,
-    user: new Map()
+    pagination: new Map({hasMore: false, nextPage: ""}),
+    user: new Map({})
   })
 
-  Rx.Observable.merge(
+  const state = Rx.Observable.merge(
     followersStream$,
     paginationStream$,
     userStream$
   )
   .scan((state, updateFn) => updateFn(state), initialState)
 
-  var patch = snabbdom.init([
+  const patch = snabbdom.init([
     require('snabbdom/modules/class').default,
     require('snabbdom/modules/style').default,
+    require('snabbdom/modules/props').default,
+    require('snabbdom/modules/eventlisteners').default,
   ]);
 
-  let vnode;
-  let root = $('.root')
+  var vnode;
+  let prevState = initialState;
+  const root = document.getElementById('root')
 
-  vnode = patch(root, userCard(state.get("user")))
+  vnode = patch(root, userCard(new Map({avatarUrl: "", url: "", followerCount: 0, login:""})))
+  const render = (state) => {
+    vnode = patch(vnode, userCard(state));
+  }
 
   state.subscribe(state => {
-    const render = () => {
-      vnode = patch(vnode, view(data));
-    }
+    const diff = getDiffs(prevState, state)
+    if (diff) render(state.get(diff))
   })
 
 
 }
 
 
-export default initiatGithubStream
+export default initiateGithubStream
 // const responseCompletionStatus$ = responses$.map(response => {
 //
 // })

@@ -1,12 +1,14 @@
 import { div, a, h2, h3 } from 'snabbdom-helpers';
+const h = require('snabbdom/h')
 
-const userCard = (avatarUrl, followerCount, url, login) =>
-  div({
+const userCard = state => {
+  return div({
     selector: '.user-card',
     inner: [
       div({
         selector: '.avatar',
-        style: { backgroundImage: `url(${avatarUrl})`}
+        style: { backgroundImage: `url(${state.get("avatarUrl")})`},
+        on: {click: () => window.location.replace(`${state.get('url')}`)}
       }),
       div({
         selector: '.user-details',
@@ -14,13 +16,13 @@ const userCard = (avatarUrl, followerCount, url, login) =>
           h2({
             selector: '.user-name',
             inner: [
-              `${login}`
+              `${state.get("login")}`
             ]
           }),
           h3({
             selector: '.followers',
             inner: [
-              `${followerCount} followers`
+              `${state.get("followerCount")} followers`
             ]
           })
 
@@ -28,4 +30,5 @@ const userCard = (avatarUrl, followerCount, url, login) =>
       })
     ]
   })
+}
 export default userCard

@@ -3402,6 +3402,8 @@ var ZipBufferIterator = (function (_super) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+var stateKeys = ['user', 'followers', 'pagination'];
+
 var $apply = function $apply($fnString) {
   for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
     args[_key - 1] = arguments[_key];
@@ -3439,6 +3441,11 @@ var scroll = exports.scroll = function scroll(tgt, shift) {
 var formatURL = exports.formatURL = function formatURL(string) {
   return string ? /h(?:(?!>).)*/.exec(string)[0] : null;
 };
+
+var getDiffs = exports.getDiffs = function getDiffs(prevState, state) {
+  return 'user';
+};
+// stateKeys.reduce((acc, key) => acc = prevState.get(key).equals(state.get(key)) ? acc : key, null)
 
 /***/ }),
 /* 38 */
@@ -16751,17 +16758,17 @@ var _immutable = __webpack_require__(75);
 
 var _utils = __webpack_require__(37);
 
-var _snabbdom = __webpack_require__(697);
-
-var _snabbdom2 = _interopRequireDefault(_snabbdom);
-
 var _userCard = __webpack_require__(492);
 
 var _userCard2 = _interopRequireDefault(_userCard);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var initiatGithubStream = function initiatGithubStream() {
+// import snabbdom                 from 'snabbdom'
+var snabbdom = __webpack_require__(697);
+var h = __webpack_require__(424);
+
+var initiateGithubStream = function initiateGithubStream() {
   var source$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit');
   var loadMoreButton$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.load-button'), 'click');
   var $input = (0, _jquery2.default)('#input_text');
@@ -16771,7 +16778,9 @@ var initiatGithubStream = function initiatGithubStream() {
   var followerRequests$ = multicasted.map(function (e) {
     e.preventDefault();
     return 'https://api.github.com/users/' + $input.val() + '/followers';
-  }).merge(loadMoreButton$.mapTo(e.currentTarget.dataset.href)).map(function (requestUrl) {
+  }).merge(loadMoreButton$.map(function (e) {
+    return e.currentTarget.dataset.href;
+  })).map(function (requestUrl) {
     return _jquery2.default.ajax({ url: requestUrl });
   });
 
@@ -16799,7 +16808,7 @@ var initiatGithubStream = function initiatGithubStream() {
     });
   }).map(function (link) {
     return function (state) {
-      return state.set("hasMore", !!link).set("nextPage", link);
+      return state.set("pagination", new _immutable.Map({ hasMore: !!link, nextPage: link }));
     };
   });
 
@@ -16807,36 +16816,39 @@ var initiatGithubStream = function initiatGithubStream() {
     return _rxjs2.default.Observable.fromPromise(res);
   }).map(function (res) {
     return function (state) {
-      return state.get("followers").concat((0, _immutable.fromJS)(res));
+      var newState = state.get('followers').concat((0, _immutable.fromJS)(res));
+      return state.set("followers", newState);
     };
   });
 
   var initialState = new _immutable.Map({
     followers: new _immutable.List(),
-    hasMore: false,
-    nextPage: null,
-    user: new _immutable.Map()
+    pagination: new _immutable.Map({ hasMore: false, nextPage: "" }),
+    user: new _immutable.Map({})
   });
 
-  _rxjs2.default.Observable.merge(followersStream$, paginationStream$, userStream$).scan(function (state, updateFn) {
+  var state = _rxjs2.default.Observable.merge(followersStream$, paginationStream$, userStream$).scan(function (state, updateFn) {
     return updateFn(state);
   }, initialState);
 
-  var patch = _snabbdom2.default.init([__webpack_require__(695).default, __webpack_require__(696).default]);
+  var patch = snabbdom.init([__webpack_require__(695).default, __webpack_require__(696).default, __webpack_require__(699).default, __webpack_require__(700).default]);
 
-  var vnode = void 0;
-  var root = (0, _jquery2.default)('.root');
+  var vnode;
+  var prevState = initialState;
+  var root = document.getElementById('root');
 
-  vnode = patch(root, (0, _userCard2.default)(state.get("user")));
+  vnode = patch(root, (0, _userCard2.default)(new _immutable.Map({ avatarUrl: "", url: "", followerCount: 0, login: "" })));
+  var render = function render(state) {
+    vnode = patch(vnode, (0, _userCard2.default)(state));
+  };
 
   state.subscribe(function (state) {
-    var render = function render() {
-      vnode = patch(vnode, view(data));
-    };
+    var diff = (0, _utils.getDiffs)(prevState, state);
+    if (diff) render(state.get(diff));
   });
 };
 
-exports.default = initiatGithubStream;
+exports.default = initiateGithubStream;
 // const responseCompletionStatus$ = responses$.map(response => {
 //
 // })
@@ -41127,20 +41139,25 @@ Object.defineProperty(exports, "__esModule", {
 
 var _snabbdomHelpers = __webpack_require__(691);
 
-var userCard = function userCard(avatarUrl, followerCount, url, login) {
+var h = __webpack_require__(424);
+
+var userCard = function userCard(state) {
   return (0, _snabbdomHelpers.div)({
     selector: '.user-card',
     inner: [(0, _snabbdomHelpers.div)({
       selector: '.avatar',
-      style: { backgroundImage: 'url(' + avatarUrl + ')' }
+      style: { backgroundImage: 'url(' + state.get("avatarUrl") + ')' },
+      on: { click: function click() {
+          return window.location.replace('' + state.get('url'));
+        } }
     }), (0, _snabbdomHelpers.div)({
       selector: '.user-details',
       inner: [(0, _snabbdomHelpers.h2)({
         selector: '.user-name',
-        inner: ['' + login]
+        inner: ['' + state.get("login")]
       }), (0, _snabbdomHelpers.h3)({
         selector: '.followers',
-        inner: [followerCount + ' followers']
+        inner: [state.get("followerCount") + ' followers']
       })]
     })]
   });
@@ -49222,6 +49239,139 @@ exports.thunk = function thunk(sel, key, fn, args) {
 };
 exports.default = exports.thunk;
 //# sourceMappingURL=thunk.js.map
+
+/***/ }),
+/* 699 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function updateProps(oldVnode, vnode) {
+    var key, cur, old, elm = vnode.elm, oldProps = oldVnode.data.props, props = vnode.data.props;
+    if (!oldProps && !props)
+        return;
+    if (oldProps === props)
+        return;
+    oldProps = oldProps || {};
+    props = props || {};
+    for (key in oldProps) {
+        if (!props[key]) {
+            delete elm[key];
+        }
+    }
+    for (key in props) {
+        cur = props[key];
+        old = oldProps[key];
+        if (old !== cur && (key !== 'value' || elm[key] !== cur)) {
+            elm[key] = cur;
+        }
+    }
+}
+exports.propsModule = { create: updateProps, update: updateProps };
+exports.default = exports.propsModule;
+//# sourceMappingURL=props.js.map
+
+/***/ }),
+/* 700 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function invokeHandler(handler, vnode, event) {
+    if (typeof handler === "function") {
+        // call function handler
+        handler.call(vnode, event, vnode);
+    }
+    else if (typeof handler === "object") {
+        // call handler with arguments
+        if (typeof handler[0] === "function") {
+            // special case for single argument for performance
+            if (handler.length === 2) {
+                handler[0].call(vnode, handler[1], event, vnode);
+            }
+            else {
+                var args = handler.slice(1);
+                args.push(event);
+                args.push(vnode);
+                handler[0].apply(vnode, args);
+            }
+        }
+        else {
+            // call multiple handlers
+            for (var i = 0; i < handler.length; i++) {
+                invokeHandler(handler[i]);
+            }
+        }
+    }
+}
+function handleEvent(event, vnode) {
+    var name = event.type, on = vnode.data.on;
+    // call event handler(s) if exists
+    if (on && on[name]) {
+        invokeHandler(on[name], vnode, event);
+    }
+}
+function createListener() {
+    return function handler(event) {
+        handleEvent(event, handler.vnode);
+    };
+}
+function updateEventListeners(oldVnode, vnode) {
+    var oldOn = oldVnode.data.on, oldListener = oldVnode.listener, oldElm = oldVnode.elm, on = vnode && vnode.data.on, elm = (vnode && vnode.elm), name;
+    // optimization for reused immutable handlers
+    if (oldOn === on) {
+        return;
+    }
+    // remove existing listeners which no longer used
+    if (oldOn && oldListener) {
+        // if element changed or deleted we remove all existing listeners unconditionally
+        if (!on) {
+            for (name in oldOn) {
+                // remove listener if element was changed or existing listeners removed
+                oldElm.removeEventListener(name, oldListener, false);
+            }
+        }
+        else {
+            for (name in oldOn) {
+                // remove listener if existing listener removed
+                if (!on[name]) {
+                    oldElm.removeEventListener(name, oldListener, false);
+                }
+            }
+        }
+    }
+    // add new listeners which has not already attached
+    if (on) {
+        // reuse existing listener or create new
+        var listener = vnode.listener = oldVnode.listener || createListener();
+        // update vnode for listener
+        listener.vnode = vnode;
+        // if element changed or added we add all needed listeners unconditionally
+        if (!oldOn) {
+            for (name in on) {
+                // add listener if element was changed or new listeners added
+                elm.addEventListener(name, listener, false);
+            }
+        }
+        else {
+            for (name in on) {
+                // add listener if new listener added
+                if (!oldOn[name]) {
+                    elm.addEventListener(name, listener, false);
+                }
+            }
+        }
+    }
+}
+exports.eventListenersModule = {
+    create: updateEventListeners,
+    update: updateEventListeners,
+    destroy: updateEventListeners
+};
+exports.default = exports.eventListenersModule;
+//# sourceMappingURL=eventlisteners.js.map
 
 /***/ })
 /******/ ]);
