@@ -2,6 +2,8 @@ import Rx                       from 'rxjs'
 import $                        from 'jquery'
 import { fromJS, Map, List }    from 'immutable'
 import { prototype, formatURL } from './utils'
+import snabbdom, { h }          from 'snabbdom'
+import userCard                 from './UiComponents/userCard'
 
 
 const initiatGithubStream = () => {
@@ -24,7 +26,7 @@ const initiatGithubStream = () => {
       const newUserInfo = new Map({
         avatarUrl: res.avatar_url,
         followerCount: res.followers,
-        address: res.html_url,
+        url: res.html_url,
         login: res.login
       })
       return state.set("user", newUserInfo)
@@ -57,8 +59,26 @@ const initiatGithubStream = () => {
     userStream$
   )
   .scan((state, updateFn) => updateFn(state), initialState)
-  .forEach(state => console.log(state.get('user')))
+
+  var patch = snabbdom.init([
+    require('snabbdom/modules/class').default,
+    require('snabbdom/modules/style').default,
+  ]);
+
+  let vnode;
+  let root = $('.root')
+
+  vnode = patch(root, userCard(state.get("user")))
+
+  state.subscribe(state => {
+    const render = () => {
+      vnode = patch(vnode, view(data));
+    }
+  })
+
+
 }
+
 
 export default initiatGithubStream
 // const responseCompletionStatus$ = responses$.map(response => {

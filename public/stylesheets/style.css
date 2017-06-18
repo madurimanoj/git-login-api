@@ -41,3 +41,16 @@ body {
 .collection {
   border: none;
 }
+
+.results-container {
+  height: 80vh;
+  background-color: rgba(0, 0, 0, .5);
+  width: 80vw;
+  max-width: 1000px;
+  border-radius: 10px;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow: scroll;
+}
