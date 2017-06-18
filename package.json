@@ -11,10 +11,12 @@
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
     "express": "~4.15.2",
+    "immutable": "^3.8.1",
     "jade": "~1.11.0",
     "jquery": "^3.2.1",
     "materialize-css": "^0.98.2",
     "morgan": "~1.8.1",
+    "node-fetch": "^1.7.1",
     "pg-promise": "^5.9.3",
     "rxjs": "5.4.1",
     "serve-favicon": "~2.4.2"

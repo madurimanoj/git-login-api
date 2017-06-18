@@ -1,8 +1,11 @@
-import { moveFocus, $next, $prev } from './utils'
+import { scroll, $next, $prev, $select } from './utils'
 import Rx from 'rxjs'
 import $ from 'jquery'
 
 const searchSuggestions = () => {
+  const $input = $('#input_text');
+  const $listRoot = $('.collection')
+  const subject = new Rx.Subject()
 
   const getSuggestedUsers = term => {
     return $.ajax({
@@ -11,49 +14,46 @@ const searchSuggestions = () => {
     }).promise();
   }
 
-  const $input = $('#input_text');
-  const $listRoot = $('.collection')
 
-  const keydown$ = Rx.Observable.fromEvent($(document), 'keydown')
-  const [arrowScrolls$, enterKeys$] = keydown$.pluck("which")
-      .filter(key => [38, 40, 13].includes(key))
-      .partition(key => key % 2 === 0)      // enter code is odd, up and down are even
+  const [arrowScrolls$, enterKeys$] = Rx.Observable.fromEvent($input, 'keydown')
+    .pluck("which")
+    .filter(key => [38, 40, 13].includes(key))
+    .partition(key => key % 2 === 0)      // enter code is odd, up and down are even
 
   arrowScrolls$.map(key => key === 40 ? ['first-child', $next] : ['last-child', $prev])
-    .forEach(args => {
-      const $lastActive = $(`.user.selected`)
-      $lastActive.length ? moveFocus($lastActive, args[1]) : moveFocus($(`.user:${args[0]}`))
+    .forEach(args =>
+      $(`.selected`).length ? scroll($(`.selected`), args[1]) : $select($(`.user:${args[0]}`)))
+
+  const multicasted = enterKeys$.multicast(subject)
+  multicasted.filter(e => $('.selected').length > 0)
+    .forEach(e => {
+      $input.val($(".selected").text())
+      $('form').trigger('submit')
+      $input.blur()
     })
 
-  enterKeys$.forEach((e) => {
-    const $selected = $('.selected')
-    if ($selected.length > 0) {
-      $input.val(selected.text())
-      $results.empty()
-    }
-  })
+  multicasted.connect()
 
-  const keyup$ = Rx.Observable.fromEvent($input, 'keyup')
+  const [suggestionRequests$, clearSearchField$] = Rx.Observable.fromEvent($input, 'keyup')
     .pluck("target", "value")
-
-  const [suggestionRequests$, clearSearchField$] = keyup$.partition(text => text.length > 0)
+    .partition(text => text.length > 0 && text.length > 2)
 
   const clearSuggestions$ = Rx.Observable.fromEvent($input, 'blur')
-    .merge(clearSearchField$)
+    .merge(clearSearchField$, multicasted)
 
-  const suggestedUsers$ = suggestionRequests$.filter(text => text.length > 2)
-    .debounceTime(350)
+  const suggestedUsers$ = suggestionRequests$ .debounceTime(350)
     .distinctUntilChanged()
     .switchMap(getSuggestedUsers)
     .pluck('data')
 
-  suggestedUsers$.forEach(res => {
-    $listRoot
-      .empty()
-      .append($.map(res, (u) => $(`<a href="#!" class="collection-item user">${u.login}</a>`)))
+  clearSuggestions$
+    .do(() => $listRoot.empty())
+    .flatMap(() => suggestedUsers$.takeUntil(clearSuggestions$))
+    .forEach(res => {
+      $listRoot
+        .empty()
+        .append($.map(res, (u) => $(`<a href="#!" class="collection-item user">${u.login}</a>`)))
   })
-
-  clearSuggestions$.forEach(() => $listRoot.empty())
 }
 
 export default searchSuggestions
