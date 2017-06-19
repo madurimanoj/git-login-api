@@ -16763,11 +16763,13 @@ var _view = __webpack_require__(701);
 
 var _view2 = _interopRequireDefault(_view);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _snabbdom = __webpack_require__(697);
 
-// import snabbdom                 from 'snabbdom'
-var snabbdom = __webpack_require__(697);
-var h = __webpack_require__(424);
+var _h = __webpack_require__(424);
+
+var _h2 = _interopRequireDefault(_h);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var initiateGithubStream = function initiateGithubStream() {
   var source$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit');
@@ -16834,14 +16836,13 @@ var initiateGithubStream = function initiateGithubStream() {
     return function (state) {
       return state.set('followers', new _immutable.List()).set('user', new _immutable.Map());
     };
-  }), followersStream$, paginationStream$, userStream$).scan(function (state, updateFn) {
+  }), followersStream$, paginationStream$, userStream$).retry().scan(function (state, updateFn) {
     return updateFn(state);
   }, initialState);
 
-  var patch = snabbdom.init([__webpack_require__(695).default, __webpack_require__(696).default, __webpack_require__(699).default, __webpack_require__(700).default]);
+  var patch = (0, _snabbdom.init)([__webpack_require__(695).default, __webpack_require__(696).default, __webpack_require__(699).default, __webpack_require__(700).default]);
 
   var vnode = void 0;
-  var prevState = initialState;
   var root = document.getElementById('root');
   vnode = patch(root, (0, _view2.default)(initialState, broadcast));
   var render = function render(state, broadcast) {
@@ -16849,10 +16850,6 @@ var initiateGithubStream = function initiateGithubStream() {
   };
 
   state.subscribe(function (state) {
-    if (!state.get('pagination').equals(prevState.get('pagination'))) {
-      (0, _jquery2.default)('.load-more').attr('href', state.getIn(['pagination', 'nextPage']));
-    }
-    prevState = state;
     render(state, broadcast);
   });
 };

@@ -7,11 +7,8 @@ import {
   getDiffs
 }                               from './utils'
 import view                     from './UiComponents/view'
-// import snabbdom                 from 'snabbdom'
-const snabbdom = require('../node_modules/snabbdom/snabbdom');
-const h = require('snabbdom/h')
-
-
+import { init }                 from 'snabbdom'
+import h                        from 'snabbdom/h'
 
 const initiateGithubStream = () => {
   const source$ = Rx.Observable.fromEvent($('form'), 'submit')
@@ -70,9 +67,10 @@ const initiateGithubStream = () => {
     paginationStream$,
     userStream$
   )
+  .retry()
   .scan((state, updateFn) => updateFn(state), initialState)
 
-  const patch = snabbdom.init([
+  const patch = init([
     require('snabbdom/modules/class').default,
     require('snabbdom/modules/style').default,
     require('snabbdom/modules/props').default,
@@ -80,7 +78,6 @@ const initiateGithubStream = () => {
   ]);
 
   let vnode;
-  let prevState = initialState;
   const root = document.getElementById('root')
   vnode = patch(root, view(initialState, broadcast))
   const render = (state, broadcast) => {
@@ -88,10 +85,6 @@ const initiateGithubStream = () => {
   }
 
   state.subscribe(state => {
-    if (!state.get('pagination').equals(prevState.get('pagination'))) {
-      $('.load-more').attr('href', state.getIn(['pagination', 'nextPage']))
-    }
-    prevState = state
     render(state, broadcast)
   })
 }

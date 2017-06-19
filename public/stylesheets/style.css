@@ -159,8 +159,9 @@ a {
   color: #26a69a;
 }
 
-.load-more, .disabled {
+.disabled {
   visibility: hidden;
+  margin-bottom: 0;
 }
 
 @media (max-width: 450px) {
