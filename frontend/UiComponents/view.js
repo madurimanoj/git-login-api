@@ -5,7 +5,7 @@ import paginationView              from './paginationView'
 import followersView               from './followersView'
 const h = require('snabbdom/h');
 
-const view = state => {
+const view = (state, broadcast) => {
   const hasUser = !!state.getIn(['user', 'login'])
   return (
     section({
@@ -16,7 +16,7 @@ const view = state => {
             inner: [
               userView(state.get('user')),
               followersView(state.get('followers')),
-              paginationView(state.get('pagination'))
+              paginationView(state.get('pagination'), broadcast)
             ],
             style: {
               transform: 'translate(-50%, 80vh)',

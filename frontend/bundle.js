@@ -16775,15 +16775,15 @@ var initiateGithubStream = function initiateGithubStream() {
   var $input = (0, _jquery2.default)('#input_text');
   var subject = new _rxjs2.default.Subject();
   var inputMulticast = source$.multicast(subject);
+  var loadUsersEmitter = new _rxjs2.default.Subject();
+  var broadcast = function broadcast(url) {
+    return loadUsersEmitter.next(url);
+  };
 
   var followerRequests$ = inputMulticast.map(function (e) {
     e.preventDefault();
     return 'https://api.github.com/users/' + $input.val() + '/followers';
-  }).merge(loadMoreButton$.do(function (e) {
-    return e.preventDefault();
-  }).map(function (e) {
-    return e.currentTarget.href;
-  })).map(function (requestUrl) {
+  }).merge(loadUsersEmitter).map(function (requestUrl) {
     return _jquery2.default.ajax({ url: requestUrl });
   });
 
@@ -16840,12 +16840,12 @@ var initiateGithubStream = function initiateGithubStream() {
 
   var patch = snabbdom.init([__webpack_require__(695).default, __webpack_require__(696).default, __webpack_require__(699).default, __webpack_require__(700).default]);
 
-  var vnode;
+  var vnode = void 0;
   var prevState = initialState;
   var root = document.getElementById('root');
-  vnode = patch(root, (0, _view2.default)(initialState));
-  var render = function render(state) {
-    vnode = patch(vnode, (0, _view2.default)(state));
+  vnode = patch(root, (0, _view2.default)(initialState, broadcast));
+  var render = function render(state, broadcast) {
+    vnode = patch(vnode, (0, _view2.default)(state, broadcast));
   };
 
   state.subscribe(function (state) {
@@ -16853,14 +16853,11 @@ var initiateGithubStream = function initiateGithubStream() {
       (0, _jquery2.default)('.load-more').attr('href', state.getIn(['pagination', 'nextPage']));
     }
     prevState = state;
-    render(state);
+    render(state, broadcast);
   });
 };
 
 exports.default = initiateGithubStream;
-// const responseCompletionStatus$ = responses$.map(response => {
-//
-// })
 
 /***/ }),
 /* 73 */
@@ -49376,12 +49373,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var h = __webpack_require__(424);
 
-var view = function view(state) {
+var view = function view(state, broadcast) {
   var hasUser = !!state.getIn(['user', 'login']);
   return (0, _snabbdomHelpers.section)({
     inner: hasUser ? [(0, _snabbdomHelpers.div)({
       selector: '.results-container',
-      inner: [(0, _userView2.default)(state.get('user')), (0, _followersView2.default)(state.get('followers')), (0, _paginationView2.default)(state.get('pagination'))],
+      inner: [(0, _userView2.default)(state.get('user')), (0, _followersView2.default)(state.get('followers')), (0, _paginationView2.default)(state.get('pagination'), broadcast)],
       style: {
         transform: 'translate(-50%, 80vh)',
         opacity: '0',
@@ -49462,13 +49459,13 @@ Object.defineProperty(exports, "__esModule", {
 
 var _snabbdomHelpers = __webpack_require__(691);
 
-var paginationView = function paginationView(state) {
+var paginationView = function paginationView(state, broadcast) {
   return (0, _snabbdomHelpers.div)({
     selector: '.load-button' + (state.get('hasMore') ? "" : ' .disabled'),
     on: { click: function click() {
-        return $('.load-more')[0].click();
+        return broadcast(state.get('nextPage'));
       } },
-    style: { opacity: '1', transition: 'opacity 1s', update: { opacity: 0 } },
+    style: { opacity: '.7', transition: 'all .5s', update: { opacity: 0 } },
     inner: ["Load More Followers"],
     data: {
       nextPage: state.get('nextPage')

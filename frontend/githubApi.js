@@ -19,15 +19,14 @@ const initiateGithubStream = () => {
   const $input = $('#input_text')
   const subject = new Rx.Subject()
   const inputMulticast = source$.multicast(subject)
+  const loadUsersEmitter = new Rx.Subject()
+  const broadcast = (url) => loadUsersEmitter.next(url)
 
   const followerRequests$ = inputMulticast.map(e => {
     e.preventDefault()
     return `https://api.github.com/users/${$input.val()}/followers`
   })
-  .merge(loadMoreButton$
-    .do(e => e.preventDefault())
-    .map(e => e.currentTarget.href)
-  )
+  .merge(loadUsersEmitter)
   .map(requestUrl => $.ajax({url: requestUrl}))
 
   const userStream$ = inputMulticast.map(e => `https://api.github.com/users/${$input.val()}`)
@@ -80,12 +79,12 @@ const initiateGithubStream = () => {
     require('snabbdom/modules/eventlisteners').default,
   ]);
 
-  var vnode;
+  let vnode;
   let prevState = initialState;
   const root = document.getElementById('root')
-  vnode = patch(root, view(initialState))
-  const render = (state) => {
-    vnode = patch(vnode, view(state));
+  vnode = patch(root, view(initialState, broadcast))
+  const render = (state, broadcast) => {
+    vnode = patch(vnode, view(state, broadcast));
   }
 
   state.subscribe(state => {
@@ -93,11 +92,8 @@ const initiateGithubStream = () => {
       $('.load-more').attr('href', state.getIn(['pagination', 'nextPage']))
     }
     prevState = state
-    render(state)
+    render(state, broadcast)
   })
 }
 
 export default initiateGithubStream
-// const responseCompletionStatus$ = responses$.map(response => {
-//
-// })
