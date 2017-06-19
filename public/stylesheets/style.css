@@ -1,21 +1,17 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-}
-
-a {
-  color: #00B7FF;
-}
-
-body {
+  font: 14px "Lucida Grande", Helvetica,  Arial, sans-serif;
   height: auto;
   background-image: url(https://s3.amazonaws.com/f.cl.ly/items/3a2h193d3W3O0L3g2U43/octocat_darkwood.jpg);
   background-size: cover;
   background-attachment: fixed;
-  width: 100%;
   background-repeat: no-repeat;
   background-color: black;
   background-position-x: 50%;
+  padding-top: 50px;
+}
+
+a {
+  color: #00B7FF;
 }
 
 .search-holder {
@@ -30,6 +26,11 @@ body {
   color: #26a69a;
 }
 
+.character-counter {
+  transform: translateY(-30px);
+  color: #26a69a;
+}
+
 .flex {
   display: flex;
 }
@@ -40,6 +41,7 @@ body {
 
 .collection {
   border: none;
+  border-top: 1px solid #26a69a;
 }
 
 .results-container {
@@ -75,6 +77,10 @@ body {
   color: rgba(255,255,255,.75);
 }
 
+.user-name {
+  cursor: pointer;
+}
+
 .avatar {
   width: 250px;
   height: 250px;
@@ -103,6 +109,7 @@ body {
   padding: 10px;
   outline: solid 1.26vw transparent;
   box-sizing: content-box;
+  cursor: pointer;
 }
 .follower-card:hover {
   outline: solid 1.26vw rgba(255,255,255, .15);
@@ -119,7 +126,6 @@ body {
 }
 
 .small-avatar {
-  cursor: pointer;
   height: 100px;
   width: 100px;
   background-image: url(https://avatars2.githubusercontent.com/u/15271788?v=3);
@@ -147,6 +153,19 @@ body {
   color: rgba(255,255,255,.75);
 }
 
-.load-button.disabled {
-  display: none;
+.load-more, .disabled {
+  visibility: hidden;
+}
+
+@media (max-width: 450px) {
+  .followers-list {
+    width: 90%;
+    justify-content: space-between;
+    flex-direction: column;
+  }
+
+  .follower-card {
+    width: 90%;
+    justify-content: space-between;
+  }
 }

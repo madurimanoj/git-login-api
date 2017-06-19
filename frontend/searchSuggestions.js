@@ -14,7 +14,6 @@ const searchSuggestions = () => {
     }).promise();
   }
 
-
   const [arrowScrolls$, enterKeys$] = Rx.Observable.fromEvent($input, 'keydown')
     .pluck("which")
     .filter(key => [38, 40, 13].includes(key))
@@ -41,7 +40,6 @@ const searchSuggestions = () => {
 
   const clearSuggestions$ = Rx.Observable.fromEvent($input, 'blur')
     .merge(clearSearchField$, multicasted)
-    .do(() => $listRoot.empty())
 
   const suggestedUsers$ = suggestionRequests$ .debounceTime(350)
     .distinctUntilChanged()
@@ -49,6 +47,7 @@ const searchSuggestions = () => {
     .pluck('data')
 
   clearSuggestions$
+    .do(() => $listRoot.empty())
     .flatMap(() => suggestedUsers$.takeUntil(clearSuggestions$))
     .forEach(res => {
       $listRoot

@@ -15,19 +15,22 @@ const h = require('snabbdom/h')
 
 const initiateGithubStream = () => {
   const source$ = Rx.Observable.fromEvent($('form'), 'submit')
-  const loadMoreButton$ = Rx.Observable.fromEvent($('.load-button'), 'click')
+  const loadMoreButton$ = Rx.Observable.fromEvent($('.load-more'), 'click')
   const $input = $('#input_text')
   const subject = new Rx.Subject()
-  const multicasted = source$.multicast(subject)
+  const inputMulticast = source$.multicast(subject)
 
-  const followerRequests$ = multicasted.map(e => {
+  const followerRequests$ = inputMulticast.map(e => {
     e.preventDefault()
     return `https://api.github.com/users/${$input.val()}/followers`
   })
-  .merge(loadMoreButton$.map(e => e.currentTarget.dataset.href))
+  .merge(loadMoreButton$
+    .do(e => e.preventDefault())
+    .map(e => e.currentTarget.href)
+  )
   .map(requestUrl => $.ajax({url: requestUrl}))
 
-  const userStream$ = multicasted.map(e => `https://api.github.com/users/${$input.val()}`)
+  const userStream$ = inputMulticast.map(e => `https://api.github.com/users/${$input.val()}`)
     .flatMap(requestUrl => Rx.Observable.fromPromise($.ajax({url: requestUrl})))
     .map(res => state => {
       const newUserInfo = new Map({
@@ -40,7 +43,7 @@ const initiateGithubStream = () => {
     })
 
 
-  multicasted.connect()
+  inputMulticast.connect()
 
   const paginationStream$ = followerRequests$.flatMap(res =>
     res.then((data, s, xhr) => formatURL(xhr.getResponseHeader('link')))
@@ -63,7 +66,7 @@ const initiateGithubStream = () => {
 
 
   const state = Rx.Observable.merge(
-    multicasted.map(() => state => state.set('followers', new List()).set('user', new Map())),
+    inputMulticast.map(() => state => state.set('followers', new List()).set('user', new Map())),
     followersStream$,
     paginationStream$,
     userStream$
@@ -86,6 +89,10 @@ const initiateGithubStream = () => {
   }
 
   state.subscribe(state => {
+    if (!state.get('pagination').equals(prevState.get('pagination'))) {
+      $('.load-more').attr('href', state.getIn(['pagination', 'nextPage']))
+    }
+    prevState = state
     render(state)
   })
 }

@@ -1,13 +1,20 @@
 import { div, h4 } from 'snabbdom-helpers';
+import $ from 'jquery'
 const h = require('snabbdom/h');
+
 
 const followersView = state => {
   let followers = state.map((follower, i) =>
     div({
       selector: '.follower-card',
+      on: { click: () => {
+          $('input').val(follower.get('login'))
+          $('form').trigger('submit')
+        }
+      },
       style: {
         transform: 'translateY(750px)',
-        transition: `.75s transform ${Math.floor(i / 2) * .2}s, .5s background-color ease-out, .5s outline ease-out`,
+        transition: `.75s transform ${Math.floor((i % 30) / 2) * .2}s, .5s background-color ease-out, .5s outline ease-out`,
         delayed: { transform: 'none' },
         destroy: { opacity: '0', transition: "opacity 1s"}
       },
@@ -15,7 +22,6 @@ const followersView = state => {
         div({
           selector: '.small-avatar',
           style: { backgroundImage: `url(${follower.get('avatar_url')})` },
-          on: { click: () => location.assign(`url(${follower.get('html_url')})`) }
         }),
         h4({selector: '.follower-login', inner: `${follower.get('login')}`}),
       ]

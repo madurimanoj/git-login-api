@@ -16771,21 +16771,23 @@ var h = __webpack_require__(424);
 
 var initiateGithubStream = function initiateGithubStream() {
   var source$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit');
-  var loadMoreButton$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.load-button'), 'click');
+  var loadMoreButton$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.load-more'), 'click');
   var $input = (0, _jquery2.default)('#input_text');
   var subject = new _rxjs2.default.Subject();
-  var multicasted = source$.multicast(subject);
+  var inputMulticast = source$.multicast(subject);
 
-  var followerRequests$ = multicasted.map(function (e) {
+  var followerRequests$ = inputMulticast.map(function (e) {
     e.preventDefault();
     return 'https://api.github.com/users/' + $input.val() + '/followers';
-  }).merge(loadMoreButton$.map(function (e) {
-    return e.currentTarget.dataset.href;
+  }).merge(loadMoreButton$.do(function (e) {
+    return e.preventDefault();
+  }).map(function (e) {
+    return e.currentTarget.href;
   })).map(function (requestUrl) {
     return _jquery2.default.ajax({ url: requestUrl });
   });
 
-  var userStream$ = multicasted.map(function (e) {
+  var userStream$ = inputMulticast.map(function (e) {
     return 'https://api.github.com/users/' + $input.val();
   }).flatMap(function (requestUrl) {
     return _rxjs2.default.Observable.fromPromise(_jquery2.default.ajax({ url: requestUrl }));
@@ -16801,7 +16803,7 @@ var initiateGithubStream = function initiateGithubStream() {
     };
   });
 
-  multicasted.connect();
+  inputMulticast.connect();
 
   var paginationStream$ = followerRequests$.flatMap(function (res) {
     return res.then(function (data, s, xhr) {
@@ -16828,7 +16830,7 @@ var initiateGithubStream = function initiateGithubStream() {
     user: new _immutable.Map({})
   });
 
-  var state = _rxjs2.default.Observable.merge(multicasted.map(function () {
+  var state = _rxjs2.default.Observable.merge(inputMulticast.map(function () {
     return function (state) {
       return state.set('followers', new _immutable.List()).set('user', new _immutable.Map());
     };
@@ -16847,6 +16849,10 @@ var initiateGithubStream = function initiateGithubStream() {
   };
 
   state.subscribe(function (state) {
+    if (!state.get('pagination').equals(prevState.get('pagination'))) {
+      (0, _jquery2.default)('.load-more').attr('href', state.getIn(['pagination', 'nextPage']));
+    }
+    prevState = state;
     render(state);
   });
 };
@@ -16931,13 +16937,13 @@ var searchSuggestions = function searchSuggestions() {
       suggestionRequests$ = _Rx$Observable$fromEv4[0],
       clearSearchField$ = _Rx$Observable$fromEv4[1];
 
-  var clearSuggestions$ = _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$, multicasted).do(function () {
-    return $listRoot.empty();
-  });
+  var clearSuggestions$ = _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$, multicasted);
 
   var suggestedUsers$ = suggestionRequests$.debounceTime(350).distinctUntilChanged().switchMap(getSuggestedUsers).pluck('data');
 
-  clearSuggestions$.flatMap(function () {
+  clearSuggestions$.do(function () {
+    return $listRoot.empty();
+  }).flatMap(function () {
     return suggestedUsers$.takeUntil(clearSuggestions$);
   }).forEach(function (res) {
     $listRoot.empty().append(_jquery2.default.map(res, function (u) {
@@ -49401,24 +49407,32 @@ Object.defineProperty(exports, "__esModule", {
 
 var _snabbdomHelpers = __webpack_require__(691);
 
+var _jquery = __webpack_require__(38);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 var h = __webpack_require__(424);
 
 var followersView = function followersView(state) {
   var followers = state.map(function (follower, i) {
     return (0, _snabbdomHelpers.div)({
       selector: '.follower-card',
+      on: { click: function click() {
+          (0, _jquery2.default)('input').val(follower.get('login'));
+          (0, _jquery2.default)('form').trigger('submit');
+        }
+      },
       style: {
         transform: 'translateY(750px)',
-        transition: '.75s transform ' + Math.floor(i / 2) * .2 + 's, .5s background-color ease-out, .5s outline ease-out',
+        transition: '.75s transform ' + Math.floor(i % 30 / 2) * .2 + 's, .5s background-color ease-out, .5s outline ease-out',
         delayed: { transform: 'none' },
         destroy: { opacity: '0', transition: "opacity 1s" }
       },
       inner: [(0, _snabbdomHelpers.div)({
         selector: '.small-avatar',
-        style: { backgroundImage: 'url(' + follower.get('avatar_url') + ')' },
-        on: { click: function click() {
-            return location.assign('url(' + follower.get('html_url') + ')');
-          } }
+        style: { backgroundImage: 'url(' + follower.get('avatar_url') + ')' }
       }), (0, _snabbdomHelpers.h4)({ selector: '.follower-login', inner: '' + follower.get('login') })]
     });
   });
@@ -49451,12 +49465,13 @@ var _snabbdomHelpers = __webpack_require__(691);
 var paginationView = function paginationView(state) {
   return (0, _snabbdomHelpers.div)({
     selector: '.load-button' + (state.get('hasMore') ? "" : ' .disabled'),
+    on: { click: function click() {
+        return $('.load-more')[0].click();
+      } },
+    style: { opacity: '1', transition: 'opacity 1s', update: { opacity: 0 } },
     inner: ["Load More Followers"],
     data: {
       nextPage: state.get('nextPage')
-    },
-    on: function on() {
-      return location.assign(state.get('link'));
     }
   });
 };
@@ -49481,13 +49496,13 @@ var h = __webpack_require__(424);
 var userView = function userView(state) {
   return (0, _snabbdomHelpers.div)({
     selector: '.user-card',
-    hook: { update: function update(vnode) {
-        return console.log(vnode);
-      } },
     style: { transition: 'opacity 1s', opacity: '1', destroy: { opacity: "0" } },
     inner: [(0, _snabbdomHelpers.div)({
       selector: '.user-details',
       inner: [(0, _snabbdomHelpers.h2)({
+        on: { click: function click() {
+            return location.assign(state.get('url'));
+          } },
         selector: '.user-name',
         inner: ['' + state.get("login")]
       }), (0, _snabbdomHelpers.h3)({

@@ -4,13 +4,13 @@ const h = require('snabbdom/h')
 const userView = state => {
   return div({
     selector: '.user-card',
-    hook: {update: vnode => console.log(vnode)},
     style: { transition: 'opacity 1s', opacity: '1', destroy: { opacity: "0" }},
     inner: [
       div({
         selector: '.user-details',
         inner: [
           h2({
+            on: { click: () => location.assign(state.get('url')) },
             selector: '.user-name',
             inner: [
               `${state.get("login")}`
