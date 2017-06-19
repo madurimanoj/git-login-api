@@ -6,7 +6,7 @@ import {
   formatURL,
   getDiffs
 }                               from './utils'
-import userCard                 from './UiComponents/userCard'
+import view                     from './UiComponents/view'
 // import snabbdom                 from 'snabbdom'
 const snabbdom = require('../node_modules/snabbdom/snabbdom');
 const h = require('snabbdom/h')
@@ -61,7 +61,9 @@ const initiateGithubStream = () => {
     user: new Map({})
   })
 
+
   const state = Rx.Observable.merge(
+    multicasted.map(() => state => state.set('followers', new List()).set('user', new Map())),
     followersStream$,
     paginationStream$,
     userStream$
@@ -78,20 +80,15 @@ const initiateGithubStream = () => {
   var vnode;
   let prevState = initialState;
   const root = document.getElementById('root')
-
-  vnode = patch(root, userCard(new Map({avatarUrl: "", url: "", followerCount: 0, login:""})))
+  vnode = patch(root, view(initialState))
   const render = (state) => {
-    vnode = patch(vnode, userCard(state));
+    vnode = patch(vnode, view(state));
   }
 
   state.subscribe(state => {
-    const diff = getDiffs(prevState, state)
-    if (diff) render(state.get(diff))
+    render(state)
   })
-
-
 }
-
 
 export default initiateGithubStream
 // const responseCompletionStatus$ = responses$.map(response => {

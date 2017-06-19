@@ -1,15 +1,12 @@
-import { div, a, h2, h3 } from 'snabbdom-helpers';
+import { div, h2, h3 } from 'snabbdom-helpers';
 const h = require('snabbdom/h')
 
-const userCard = state => {
+const userView = state => {
   return div({
     selector: '.user-card',
+    hook: {update: vnode => console.log(vnode)},
+    style: { transition: 'opacity 1s', opacity: '1', destroy: { opacity: "0" }},
     inner: [
-      div({
-        selector: '.avatar',
-        style: { backgroundImage: `url(${state.get("avatarUrl")})`},
-        on: {click: () => window.location.replace(`${state.get('url')}`)}
-      }),
       div({
         selector: '.user-details',
         inner: [
@@ -25,10 +22,14 @@ const userCard = state => {
               `${state.get("followerCount")} followers`
             ]
           })
-
         ]
+      }),
+      div({
+        selector: '.avatar',
+        style: { backgroundImage: `url(${state.get('avatarUrl')})`},
+        on: {click: () => location.assign(`${state.get('url')}`)}
       })
     ]
   })
 }
-export default userCard
+export default userView

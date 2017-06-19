@@ -3443,9 +3443,10 @@ var formatURL = exports.formatURL = function formatURL(string) {
 };
 
 var getDiffs = exports.getDiffs = function getDiffs(prevState, state) {
-  return 'user';
+  return stateKeys.reduce(function (acc, key) {
+    return acc = prevState.get(key).equals(state.get(key)) ? acc : key;
+  }, null);
 };
-// stateKeys.reduce((acc, key) => acc = prevState.get(key).equals(state.get(key)) ? acc : key, null)
 
 /***/ }),
 /* 38 */
@@ -16758,9 +16759,9 @@ var _immutable = __webpack_require__(75);
 
 var _utils = __webpack_require__(37);
 
-var _userCard = __webpack_require__(492);
+var _view = __webpack_require__(701);
 
-var _userCard2 = _interopRequireDefault(_userCard);
+var _view2 = _interopRequireDefault(_view);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -16827,7 +16828,11 @@ var initiateGithubStream = function initiateGithubStream() {
     user: new _immutable.Map({})
   });
 
-  var state = _rxjs2.default.Observable.merge(followersStream$, paginationStream$, userStream$).scan(function (state, updateFn) {
+  var state = _rxjs2.default.Observable.merge(multicasted.map(function () {
+    return function (state) {
+      return state.set('followers', new _immutable.List()).set('user', new _immutable.Map());
+    };
+  }), followersStream$, paginationStream$, userStream$).scan(function (state, updateFn) {
     return updateFn(state);
   }, initialState);
 
@@ -16836,15 +16841,13 @@ var initiateGithubStream = function initiateGithubStream() {
   var vnode;
   var prevState = initialState;
   var root = document.getElementById('root');
-
-  vnode = patch(root, (0, _userCard2.default)(new _immutable.Map({ avatarUrl: "", url: "", followerCount: 0, login: "" })));
+  vnode = patch(root, (0, _view2.default)(initialState));
   var render = function render(state) {
-    vnode = patch(vnode, (0, _userCard2.default)(state));
+    vnode = patch(vnode, (0, _view2.default)(state));
   };
 
   state.subscribe(function (state) {
-    var diff = (0, _utils.getDiffs)(prevState, state);
-    if (diff) render(state.get(diff));
+    render(state);
   });
 };
 
@@ -41127,44 +41130,7 @@ function reduceValues(unction) {
 } /* eslint-disable immutable/no-let */
 
 /***/ }),
-/* 492 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _snabbdomHelpers = __webpack_require__(691);
-
-var h = __webpack_require__(424);
-
-var userCard = function userCard(state) {
-  return (0, _snabbdomHelpers.div)({
-    selector: '.user-card',
-    inner: [(0, _snabbdomHelpers.div)({
-      selector: '.avatar',
-      style: { backgroundImage: 'url(' + state.get("avatarUrl") + ')' },
-      on: { click: function click() {
-          return window.location.replace('' + state.get('url'));
-        } }
-    }), (0, _snabbdomHelpers.div)({
-      selector: '.user-details',
-      inner: [(0, _snabbdomHelpers.h2)({
-        selector: '.user-name',
-        inner: ['' + state.get("login")]
-      }), (0, _snabbdomHelpers.h3)({
-        selector: '.followers',
-        inner: [state.get("followerCount") + ' followers']
-      })]
-    })]
-  });
-};
-exports.default = userCard;
-
-/***/ }),
+/* 492 */,
 /* 493 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -49372,6 +49338,172 @@ exports.eventListenersModule = {
 };
 exports.default = exports.eventListenersModule;
 //# sourceMappingURL=eventlisteners.js.map
+
+/***/ }),
+/* 701 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdomHelpers = __webpack_require__(691);
+
+var _immutable = __webpack_require__(75);
+
+var _userView = __webpack_require__(704);
+
+var _userView2 = _interopRequireDefault(_userView);
+
+var _paginationView = __webpack_require__(703);
+
+var _paginationView2 = _interopRequireDefault(_paginationView);
+
+var _followersView = __webpack_require__(702);
+
+var _followersView2 = _interopRequireDefault(_followersView);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var h = __webpack_require__(424);
+
+var view = function view(state) {
+  var hasUser = !!state.getIn(['user', 'login']);
+  return (0, _snabbdomHelpers.section)({
+    inner: hasUser ? [(0, _snabbdomHelpers.div)({
+      selector: '.results-container',
+      inner: [(0, _userView2.default)(state.get('user')), (0, _followersView2.default)(state.get('followers')), (0, _paginationView2.default)(state.get('pagination'))],
+      style: {
+        transform: 'translate(-50%, 80vh)',
+        opacity: '0',
+        transition: 'transform .75s, opacity 1s',
+        remove: { opacity: "0", transform: "translateX(-50%, 0vh)" },
+        delayed: { transform: 'translate(-50%, 0vh)', opacity: "1" }
+      }
+    })] : []
+  });
+};
+exports.default = view;
+
+/***/ }),
+/* 702 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdomHelpers = __webpack_require__(691);
+
+var h = __webpack_require__(424);
+
+var followersView = function followersView(state) {
+  var followers = state.map(function (follower, i) {
+    return (0, _snabbdomHelpers.div)({
+      selector: '.follower-card',
+      style: {
+        transform: 'translateY(750px)',
+        transition: '.75s transform ' + Math.floor(i / 2) * .2 + 's, .5s background-color ease-out, .5s outline ease-out',
+        delayed: { transform: 'none' },
+        destroy: { opacity: '0', transition: "opacity 1s" }
+      },
+      inner: [(0, _snabbdomHelpers.div)({
+        selector: '.small-avatar',
+        style: { backgroundImage: 'url(' + follower.get('avatar_url') + ')' },
+        on: { click: function click() {
+            return location.assign('url(' + follower.get('html_url') + ')');
+          } }
+      }), (0, _snabbdomHelpers.h4)({ selector: '.follower-login', inner: '' + follower.get('login') })]
+    });
+  });
+
+  if (followers.size % 2 !== 0) {
+    followers = followers.push((0, _snabbdomHelpers.div)({ style: { visibility: 'hidden', width: "45%" } }));
+  }
+
+  return (0, _snabbdomHelpers.div)({
+    selector: '.followers-list flex',
+    inner: followers.toJS()
+  });
+};
+
+exports.default = followersView;
+
+/***/ }),
+/* 703 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdomHelpers = __webpack_require__(691);
+
+var paginationView = function paginationView(state) {
+  return (0, _snabbdomHelpers.div)({
+    selector: '.load-button' + (state.get('hasMore') ? "" : ' .disabled'),
+    inner: ["Load More Followers"],
+    data: {
+      nextPage: state.get('nextPage')
+    },
+    on: function on() {
+      return location.assign(state.get('link'));
+    }
+  });
+};
+
+exports.default = paginationView;
+
+/***/ }),
+/* 704 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdomHelpers = __webpack_require__(691);
+
+var h = __webpack_require__(424);
+
+var userView = function userView(state) {
+  return (0, _snabbdomHelpers.div)({
+    selector: '.user-card',
+    hook: { update: function update(vnode) {
+        return console.log(vnode);
+      } },
+    style: { transition: 'opacity 1s', opacity: '1', destroy: { opacity: "0" } },
+    inner: [(0, _snabbdomHelpers.div)({
+      selector: '.user-details',
+      inner: [(0, _snabbdomHelpers.h2)({
+        selector: '.user-name',
+        inner: ['' + state.get("login")]
+      }), (0, _snabbdomHelpers.h3)({
+        selector: '.followers',
+        inner: [state.get("followerCount") + ' followers']
+      })]
+    }), (0, _snabbdomHelpers.div)({
+      selector: '.avatar',
+      style: { backgroundImage: 'url(' + state.get('avatarUrl') + ')' },
+      on: { click: function click() {
+          return location.assign('' + state.get('url'));
+        } }
+    })]
+  });
+};
+exports.default = userView;
 
 /***/ })
 /******/ ]);

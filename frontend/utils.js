@@ -16,6 +16,5 @@ export const scroll = (tgt, shift) => compose($unselect, shift, $select)(tgt)
 
 export const formatURL = string => string ? /h(?:(?!>).)*/.exec(string)[0] : null
 
-
-export const getDiffs = (prevState, state) => 'user'
-  // stateKeys.reduce((acc, key) => acc = prevState.get(key).equals(state.get(key)) ? acc : key, null)
+export const getDiffs = (prevState, state) =>
+  stateKeys.reduce((acc, key) => acc = prevState.get(key).equals(state.get(key)) ? acc : key, null)
