@@ -11,10 +11,6 @@
         background-color: #26a69a;
         color: white;
       }
-      /*.follower-card:hover {
-        outline: solid 1.26vw rgba(255,255,255, .25);
-        background-color: rgba(255,255,255, .25);
-      }*/
     </style>
 
     <!--Let browser know website is optimized for mobile-->
@@ -24,7 +20,7 @@
   <body>
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/5.4.1/Rx.min.js"></script> -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/5.4.1/Rx.min.js"></script>
     <script type="text/javascript" src="bundle.js"></script>
     <script type="text/javascript" src="js/materialize.min.js"></script>
     <div class="row form-wrapper">
@@ -33,7 +29,7 @@
           <div class="input-field col s6">
             <input id="input_text" type="text" style="padding: 0 0 0 .5rem;" data-length="39">
             <label for="input_text">GitHub Handle</label>
-            <div class="collection" style="margin: -1.5rem 0 1rem 0;  z-index: -1"></div>
+            <div class="collection" style="margin: -1.5rem 0 1rem 0;  z-index: 10"></div>
           </div>
         </div>
       </from>

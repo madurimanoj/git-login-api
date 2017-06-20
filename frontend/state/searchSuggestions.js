@@ -23,9 +23,15 @@ const searchSuggestions = () => {
     .forEach(args =>
       $(`.selected`).length ? scroll($(`.selected`), args[1]) : $select($(`.user:${args[0]}`)))
 
+  Rx.Observable.fromEvent($('.input-field'),'mouseover')
+  	.flatMap(e => Rx.Observable.fromEvent($('.collection-item'), 'mouseenter'))
+  	.forEach(e => $(e.currentTarget).addClass('selected').siblings().removeClass('selected'))
+
   const multicasted = enterKeys$.multicast(subject)
   multicasted.filter(e => $('.selected').length > 0)
+    .merge(Rx.Observable.fromEvent($('.selected'), 'click'))
     .forEach(e => {
+      e.preventDefault()
       $input.val($(".selected").text())
       $('form').trigger('submit')
     })
