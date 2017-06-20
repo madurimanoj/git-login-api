@@ -1,7 +1,14 @@
-import searchSuggestions from './searchSuggestions'
-import initiateAppStore  from './appState'
+import searchSuggestions   from './searchSuggestions'
+import initializeAppStore  from './appState'
+import createRenderer      from './vdom'
 
 $(document).ready(() => {
+  document.getElementById('root')
+  const { state, broadcast, initialState } = initializeAppStore()
+  const render = createRenderer(root, initialState, broadcast)
+
   searchSuggestions()
-  initiateAppStore()
+  state.subscribe(state => {
+    render(state, broadcast)
+  })
 })

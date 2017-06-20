@@ -26647,9 +26647,9 @@ var initializeAppStore = function initializeAppStore() {
   var source$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit');
   var searchStreamMulticast = source$.multicast(subject);
 
-  var loadUsersEmitter = new _rxjs2.default.Subject();
+  var loadMoreUsersSubject = new _rxjs2.default.Subject();
   var broadcast = function broadcast(url) {
-    return loadUsersEmitter.next(url);
+    return loadMoreUsersSubject.next(url);
   };
 
   var $input = (0, _jquery2.default)('#input_text'
@@ -26659,7 +26659,7 @@ var initializeAppStore = function initializeAppStore() {
   );var followerRequests$ = searchStreamMulticast.map(function (e) {
     e.preventDefault();
     return (0, _utils.followersUrl)($input.val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
-  }).merge(loadUsersEmitter).map(function (requestUrl) {
+  }).merge(loadMoreUsersSubject).map(function (requestUrl) {
     return _jquery2.default.ajax({ url: requestUrl });
   });
 
@@ -26700,18 +26700,19 @@ var initializeAppStore = function initializeAppStore() {
     return function (state) {
       return state.set("pagination", new _immutable.Map({ hasMore: !!link, nextPage: link }));
     };
-  });
+  }
 
-  var state = _rxjs2.default.Observable.merge(searchStreamMulticast.map(_utils.clearState), followersStream$, paginationStream$, userStream$).retry().scan(function (state, updateFn) {
+  // state store
+
+  );var state = _rxjs2.default.Observable.merge(searchStreamMulticast.map(_utils.clearState), followersStream$, paginationStream$, userStream$).retry().scan(function (state, updateFn) {
     return updateFn(state);
   }, _initialState2.default);
 
-  var root = document.getElementById('root');
-  var render = (0, _vdom2.default)(root, _initialState2.default, broadcast);
-
-  state.subscribe(function (state) {
-    render(state, broadcast);
-  });
+  return {
+    state: state,
+    broadcast: broadcast,
+    initialState: _initialState2.default
+  };
 };
 
 exports.default = initializeAppStore;
@@ -27372,11 +27373,26 @@ var _appState = __webpack_require__(201);
 
 var _appState2 = _interopRequireDefault(_appState);
 
+var _vdom = __webpack_require__(219);
+
+var _vdom2 = _interopRequireDefault(_vdom);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 $(document).ready(function () {
+  document.getElementById('root');
+
+  var _initializeAppStore = (0, _appState2.default)(),
+      state = _initializeAppStore.state,
+      broadcast = _initializeAppStore.broadcast,
+      initialState = _initializeAppStore.initialState;
+
+  var render = (0, _vdom2.default)(root, initialState, broadcast);
+
   (0, _searchSuggestions2.default)();
-  (0, _appState2.default)();
+  state.subscribe(function (state) {
+    render(state, broadcast);
+  });
 });
 
 /***/ }),
