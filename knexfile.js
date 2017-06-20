@@ -1,11 +1,12 @@
 // Update with your config settings.
+require('dotenv').config();
 
 module.exports = {
 
   development: {
     client: 'postgresql',
     connection: {
-      database: 'git_users'
+      database: 'shipt-github-user-search'
     }
   },
 
@@ -28,9 +29,7 @@ module.exports = {
   production: {
     client: 'postgresql',
     connection: {
-      database: 'postgres://jcdiwgsuyjkzwt:2e8474bffe9d87cd1cba14d05995e4b1d6813aa60c94a77de993575618690ec2@ec2-107-21-99-176.compute-1.amazonaws.com:5432/de2q3smt2k755e',
-      user:     'username',
-      password: 'password'
+      database: process.env.DATABASE_URL
     },
     pool: {
       min: 2,
@@ -38,7 +37,8 @@ module.exports = {
     },
     migrations: {
       tableName: 'knex_migrations'
-    }
+    },
+    ssl: true
   }
 
 };
