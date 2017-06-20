@@ -26828,7 +26828,9 @@ var searchSuggestions = function searchSuggestions() {
 
   var clearSuggestions$ = _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$, multicasted);
 
-  var suggestedUsers$ = suggestionRequests$.debounceTime(350).distinctUntilChanged().switchMap(getSuggestedUsers).pluck(['data', 'rows']).do(console.log(data));
+  var suggestedUsers$ = suggestionRequests$.debounceTime(350).distinctUntilChanged().switchMap(getSuggestedUsers).pluck(['data', 'rows']).do(function (el) {
+    return console.log(el);
+  });
 
   clearSuggestions$.do(function () {
     return $listRoot.empty();
