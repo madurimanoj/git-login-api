@@ -18,7 +18,6 @@ var pg = require('pg')
 //     })
 // }
 
-
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'GitHub User Search' });
 });
