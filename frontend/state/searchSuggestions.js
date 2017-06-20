@@ -41,10 +41,11 @@ const searchSuggestions = () => {
   const clearSuggestions$ = Rx.Observable.fromEvent($input, 'blur')
     .merge(clearSearchField$, multicasted)
 
-  const suggestedUsers$ = suggestionRequests$ .debounceTime(350)
+  const suggestedUsers$ = suggestionRequests$.debounceTime(350)
     .distinctUntilChanged()
     .switchMap(getSuggestedUsers)
-    .pluck('data')
+    .pluck(['data', 'rows'])
+    do(console.log(data))
 
   clearSuggestions$
     .do(() => $listRoot.empty())
