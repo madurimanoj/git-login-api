@@ -1,11 +1,20 @@
 var promise = require('bluebird');
-var knex = require('knex')
+var knex = require('knex')({
+  client: 'pg',
+  version: '9.5.2.0',
+  connection: {
+    host : 'ec2-107-21-99-176.compute-1.amazonaws.com',
+    database : process.env.DATABASE_URL,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD
+  }
+});
 // var options = {
 //   promiseLib: promise
 // };
 
 // var pg = require('knex')(options);
-var connectionString = process.env.DATABASE_URL
+// var connectionString = process.env.DATABASE_URL
 // var db = pgp(connectionString);
 
 var query = "SELECT login, similarity(login, $1) AS sml FROM users WHERE login % $1 ORDER BY sml DESC, login LIMIT 12"
