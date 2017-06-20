@@ -45,7 +45,6 @@ const searchSuggestions = () => {
     .distinctUntilChanged()
     .switchMap(getSuggestedUsers)
     .pluck('data')
-    .do(el => console.log(el))
 
   clearSuggestions$
     .do(() => $listRoot.empty())
