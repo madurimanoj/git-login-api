@@ -9,7 +9,7 @@ const searchSuggestions = () => {
 
   const getSuggestedUsers = term => {
     return $.ajax({
-      url: `http://localhost:3000/api/users/${term}`,
+      url: `${process.env.DATABASE_URL}/${term}`,
       dataType: 'json',
     }).promise();
   }
