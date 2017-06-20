@@ -29,7 +29,9 @@ const searchSuggestions = () => {
 
   const multicasted = enterKeys$.multicast(subject)
   multicasted.filter(e => $('.selected').length > 0)
-    .merge(Rx.Observable.fromEvent($('.selected'), 'click'))
+    .merge(
+      Rx.Observable.fromEvent($('.selected'), 'click').do(e => e.preventDefault())
+    )
     .forEach(e => {
       e.preventDefault()
       $input.val($(".selected").text())
