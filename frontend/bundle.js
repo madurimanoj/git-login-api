@@ -26503,9 +26503,10 @@ var searchSuggestions = function searchSuggestions() {
     return key === 40 ? ['first-child', _utils.$next] : ['last-child', _utils.$prev];
   }).forEach(function (args) {
     return (0, _jquery2.default)('.selected').length ? (0, _utils.scroll)((0, _jquery2.default)('.selected'), args[1]) : (0, _utils.$select)((0, _jquery2.default)('.user:' + args[0]));
-  });
+  }
 
-  _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.input-field'), 'mouseover').flatMap(function (e) {
+  // makes suggestions clickable.
+  );_rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.input-field'), 'mouseover').flatMap(function (e) {
     return _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.collection-item'), 'mouseenter');
   }).forEach(function (e) {
     return (0, _jquery2.default)(e.currentTarget).addClass('selected').siblings().removeClass('selected');
@@ -26519,9 +26520,10 @@ var searchSuggestions = function searchSuggestions() {
   })).forEach(function () {
     $input.val((0, _jquery2.default)(".selected").text());
     (0, _jquery2.default)('form').trigger('submit');
-  });
+  }
 
-  _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit').subscribe(function () {
+  // form submits are being preventDefault'd elsewhere. must manually blur inputs/clear suggestions
+  );_rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit').subscribe(function () {
     return $input.blur();
   });
 
@@ -26542,7 +26544,8 @@ var searchSuggestions = function searchSuggestions() {
     return $listRoot.empty();
   }).flatMap(function () {
     return suggestedUsers$.takeUntil(clearSuggestions$);
-  }).forEach(function (res) {
+  } //Find diagram in readme
+  ).forEach(function (res) {
     $listRoot.empty().append(_jquery2.default.map(res, function (u) {
       return (0, _jquery2.default)('<div class="collection-item user">' + u.login + '</div>');
     }));
