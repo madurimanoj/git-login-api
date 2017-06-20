@@ -32,7 +32,7 @@ const searchSuggestions = () => {
   const multicasted = enterKeys$.multicast(subject)
   multicasted.filter(e => $('.selected').length > 0)
     .merge(
-      Rx.Observable.fromEvent($(document), 'click')
+      Rx.Observable.fromEvent($(document), 'mousedown')
         .filter(e => e.target.classList.contains('selected')))
     .forEach(() => {
       $input.val($(".selected").text())
@@ -61,7 +61,7 @@ const searchSuggestions = () => {
     .forEach(res => {
       $listRoot
         .empty()
-        .append($.map(res, (u) => $(`<div href="#!" class="collection-item user">${u.login}</div>`)))
+        .append($.map(res, (u) => $(`<div class="collection-item user">${u.login}</div>`)))
   })
 }
 

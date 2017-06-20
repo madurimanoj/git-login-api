@@ -26404,7 +26404,7 @@ var initializeAppStore = function initializeAppStore() {
   });
 
   var userStream$ = searchStreamMulticast.map(function (e) {
-    return (0, _utils.userUrl)((0, _jquery2.default)('#input_text').val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
+    return (0, _utils.userUrl)((0, _jquery2.default)($input).val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
   }).flatMap(function (requestUrl) {
     return _rxjs2.default.Observable.fromPromise(_jquery2.default.ajax({ url: requestUrl }));
   }).map(function (res) {
@@ -26514,7 +26514,7 @@ var searchSuggestions = function searchSuggestions() {
   var multicasted = enterKeys$.multicast(subject);
   multicasted.filter(function (e) {
     return (0, _jquery2.default)('.selected').length > 0;
-  }).merge(_rxjs2.default.Observable.fromEvent((0, _jquery2.default)(document), 'click').filter(function (e) {
+  }).merge(_rxjs2.default.Observable.fromEvent((0, _jquery2.default)(document), 'mousedown').filter(function (e) {
     return e.target.classList.contains('selected');
   })).forEach(function () {
     $input.val((0, _jquery2.default)(".selected").text());
@@ -26544,7 +26544,7 @@ var searchSuggestions = function searchSuggestions() {
     return suggestedUsers$.takeUntil(clearSuggestions$);
   }).forEach(function (res) {
     $listRoot.empty().append(_jquery2.default.map(res, function (u) {
-      return (0, _jquery2.default)('<div href="#!" class="collection-item user">' + u.login + '</div>');
+      return (0, _jquery2.default)('<div class="collection-item user">' + u.login + '</div>');
     }));
   });
 };

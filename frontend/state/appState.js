@@ -42,7 +42,7 @@ const initializeAppStore = () => {
 
 
   const userStream$ = searchStreamMulticast
-    .map(e => userUrl($('#input_text').val(), process.env.GITHUB_KEY))
+    .map(e => userUrl($($input).val(), process.env.GITHUB_KEY))
     .flatMap(requestUrl => Rx.Observable.fromPromise($.ajax({url: requestUrl})))
     .map(res => state => {
       const newUserInfo = new Map({
