@@ -12,7 +12,7 @@ var knex = require('knex')({
 // };
 
 // var pg = require('knex')(options);
-var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/github_users';
+var connectionString = process.env.DATABASE_URL 
 // var db = pgp(connectionString);
 
 var query = "SELECT login, similarity(login, $1) AS sml FROM users WHERE login % $1 ORDER BY sml DESC, login LIMIT 12"
