@@ -26517,7 +26517,6 @@ var searchSuggestions = function searchSuggestions() {
   }).merge(_rxjs2.default.Observable.fromEvent((0, _jquery2.default)(document), 'click')).filter(function (e) {
     return e.target.classList.contains('selected');
   }).forEach(function () {
-    console.log((0, _jquery2.default)(".selected"));
     $input.val((0, _jquery2.default)(".selected").text());
     (0, _jquery2.default)('form').trigger('submit');
   });
