@@ -1,18 +1,11 @@
 var promise = require('bluebird');
-var knex = require('knex')({
-  client: 'pg',
-  version: '9.5.2.0',
-  connection: {
-    host : '127.0.0.1',
-    database : 'github_users'
-  }
-});
+var knex = require('knex')
 // var options = {
 //   promiseLib: promise
 // };
 
 // var pg = require('knex')(options);
-var connectionString = process.env.DATABASE_URL 
+var connectionString = process.env.DATABASE_URL
 // var db = pgp(connectionString);
 
 var query = "SELECT login, similarity(login, $1) AS sml FROM users WHERE login % $1 ORDER BY sml DESC, login LIMIT 12"
