@@ -33,7 +33,6 @@ const searchSuggestions = () => {
       Rx.Observable.fromEvent($('.selected'), 'click').do(e => e.preventDefault())
     )
     .forEach(e => {
-      e.preventDefault()
       $input.val($(".selected").text())
       $('form').trigger('submit')
     })
