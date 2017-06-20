@@ -8,7 +8,6 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/api/users/:partialLogin', (req, res, next) =>{
-  console.log(db.suggestedUsernames)
 
   return db.suggestedUsernames(req.params.partialLogin)
     .then(users => res.status(200).json(shows))
