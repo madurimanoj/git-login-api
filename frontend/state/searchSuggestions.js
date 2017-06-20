@@ -35,7 +35,6 @@ const searchSuggestions = () => {
       Rx.Observable.fromEvent($(document), 'click')
         .filter(e => $(e.target).hasClass('selected')))
     .forEach(() => {
-      console.log($(".selected"))
       $input.val($(".selected").text())
       $('form').trigger('submit')
     })
