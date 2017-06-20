@@ -29,11 +29,11 @@ router.get('/api/users/:partialLogin', function(req, res, next) {
 
   client
   .query("SELECT login, similarity(login, '?') AS sml FROM users WHERE login like '%?%' ORDER BY sml DESC, login LIMIT 12;", [req.params.partialLogin])
-    .then(res => {
+    .then(data => {
       res.status(200)
         .json({
           status: 'success',
-          res.data.rows,
+          data: data.data.rows,
         })
     })
   });
