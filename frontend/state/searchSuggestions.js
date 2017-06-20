@@ -9,7 +9,7 @@ const searchSuggestions = () => {
 
   const getSuggestedUsers = term => {
     return $.ajax({
-      url: `${process.env.DATABASE_URL}/${term}`,
+      url: `https://shipt-github-user-search.herokuapp.com/api/users/${term}`,
       dataType: 'json',
     }).promise();
   }
