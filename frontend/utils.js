@@ -1,3 +1,5 @@
+import { Map, List } from 'immutable'
+
 const stateKeys = ['user', 'followers', 'pagination']
 
 const $apply = ($fnString, ...args) => caller => $.fn[$fnString].apply(caller, args)
@@ -16,5 +18,8 @@ export const scroll = (tgt, shift) => compose($unselect, shift, $select)(tgt)
 
 export const formatURL = string => string ? /h(?:(?!>).)*/.exec(string)[0] : null
 
-export const getDiffs = (prevState, state) =>
-  stateKeys.reduce((acc, key) => acc = prevState.get(key).equals(state.get(key)) ? acc : key, null)
+export const clearState = () => state => state.set('followers', new List()).set('user', new Map())
+
+export const userUrl = (user, secretKey) => `https://api.github.com/users/${user}?access_token=${secretKey}`
+
+export const followersUrl = (user, secretKey) => `https://api.github.com/users/${user}/followers?access_token=${secretKey}`

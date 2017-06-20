@@ -1,7 +1,7 @@
 import searchSuggestions from './searchSuggestions'
-import initiateGithubStream from './githubApi'
+import initiateAppStore  from './appState'
 
 $(document).ready(() => {
   searchSuggestions()
-  initiateGithubStream()
+  initiateAppStore()
 })

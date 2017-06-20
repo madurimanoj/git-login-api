@@ -1,5 +1,6 @@
-
 var path = require('path');
+var Dotenv = require('dotenv-webpack');
+var fs = require('fs');
 
 module.exports = {
   context: __dirname,
@@ -20,6 +21,11 @@ module.exports = {
       }
     ]
   },
+  plugins: [
+    new Dotenv({
+      path: './.env',
+    })
+  ],
   devtool: 'source-map',
   resolve: {
     extensions: [".js", "*"]
