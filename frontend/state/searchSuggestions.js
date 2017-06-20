@@ -13,7 +13,7 @@ const searchSuggestions = () => {
       dataType: 'json',
     }).promise();
   }
-console.log(process.env.DATABASE_URL)
+
   const [arrowScrolls$, enterKeys$] = Rx.Observable.fromEvent($input, 'keydown')
     .pluck("which")
     .filter(key => [38, 40, 13].includes(key))
