@@ -14,10 +14,12 @@ const searchSuggestions = () => {
     }).promise();
   }
 
+    // make sugggestion list arrow-key-scrollable, and submit on enter.
   const [arrowScrolls$, enterKeys$] = Rx.Observable.fromEvent($input, 'keydown')
     .pluck("which")
     .filter(key => [38, 40, 13].includes(key))
-    .partition(key => key % 2 === 0)      // enter code is odd, up and down are even
+    .partition(key => key % 2 === 0)   // enter (13) is odd; up and down and even
+                                      // #partition splits an Observable into 2 based on condition
 
   arrowScrolls$.map(key => key === 40 ? ['first-child', $next] : ['last-child', $prev])
     .forEach(args =>
@@ -30,9 +32,10 @@ const searchSuggestions = () => {
   const multicasted = enterKeys$.multicast(subject)
   multicasted.filter(e => $('.selected').length > 0)
     .merge(
-      Rx.Observable.fromEvent($('.selected'), 'click').do(e => e.preventDefault())
-    )
-    .forEach(e => {
+      Rx.Observable.fromEvent($(document), 'click')
+        .filter(e => $(e.target).hasClass('selected')))
+    .forEach(() => {
+      console.log($(".selected"))
       $input.val($(".selected").text())
       $('form').trigger('submit')
     })
@@ -59,7 +62,7 @@ const searchSuggestions = () => {
     .forEach(res => {
       $listRoot
         .empty()
-        .append($.map(res, (u) => $(`<a href="#!" class="collection-item user">${u.login}</a>`)))
+        .append($.map(res, (u) => $(`<div href="#!" class="collection-item user">${u.login}</div>`)))
   })
 }
 

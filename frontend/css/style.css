@@ -45,8 +45,11 @@ a {
   transform: translateY(1px);
 }
 
-.collection-item {
+div.collection-item {
   opacity: .9;
+  transition: .25s;
+  color: #26a69a;
+  cursor: pointer;
 }
 
 .results-container {

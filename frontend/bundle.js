@@ -26485,11 +26485,14 @@ var searchSuggestions = function searchSuggestions() {
     }).promise();
   };
 
+  // make sugggestion list arrow-key-scrollable, and submit on enter.
+
   var _Rx$Observable$fromEv = _rxjs2.default.Observable.fromEvent($input, 'keydown').pluck("which").filter(function (key) {
     return [38, 40, 13].includes(key);
   }).partition(function (key) {
     return key % 2 === 0;
-  } // enter code is odd, up and down are even
+  } // enter (13) is odd; up and down and even
+  // #partition splits an Observable into 2 based on condition
 
   ),
       _Rx$Observable$fromEv2 = _slicedToArray(_Rx$Observable$fromEv, 2),
@@ -26511,9 +26514,10 @@ var searchSuggestions = function searchSuggestions() {
   var multicasted = enterKeys$.multicast(subject);
   multicasted.filter(function (e) {
     return (0, _jquery2.default)('.selected').length > 0;
-  }).merge(_rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.selected'), 'click').do(function (e) {
-    return e.preventDefault();
-  })).forEach(function (e) {
+  }).merge(_rxjs2.default.Observable.fromEvent((0, _jquery2.default)(document), 'click').filter(function (e) {
+    return (0, _jquery2.default)(e.target).hasClass('selected');
+  })).forEach(function () {
+    console.log((0, _jquery2.default)(".selected"));
     $input.val((0, _jquery2.default)(".selected").text());
     (0, _jquery2.default)('form').trigger('submit');
   });
@@ -26541,7 +26545,7 @@ var searchSuggestions = function searchSuggestions() {
     return suggestedUsers$.takeUntil(clearSuggestions$);
   }).forEach(function (res) {
     $listRoot.empty().append(_jquery2.default.map(res, function (u) {
-      return (0, _jquery2.default)('<a href="#!" class="collection-item user">' + u.login + '</a>');
+      return (0, _jquery2.default)('<div href="#!" class="collection-item user">' + u.login + '</div>');
     }));
   });
 };
