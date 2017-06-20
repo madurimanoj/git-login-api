@@ -1,12 +1,42 @@
 var express = require('express');
 var router = express.Router();
+var pg = require('pg')
+// var pool = require('../db');
+// console.log(pg.defaults)
 
-var db = require('../queries');
+// var query = "SELECT login, similarity(login, $1) AS sml FROM users WHERE login % $1 ORDER BY sml DESC, login LIMIT 12;"
+// // add query functions
+// var suggestedUsernames = (req, res, next) => {
+//   var partialLogin = req.params.partialLogin
+//   db.many(query, partialLogin)
+//     .then((data) => {
+//       res.status(200)
+//         .json({
+//           status: 'success',
+//           data,
+//         });
+//     })
+// }
+
 
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'GitHub User Search' });
 });
 
-router.get('/api/users/:partialLogin', db.suggestedUsernames);
+router.get('/api/users/:partialLogin', function(req, res, next) {
+  pool.connect(process.env.DATABASE_URL, function(err, client) {
+  if (err) throw err;
+
+  client
+    .query("SELECT login, similarity(login, $1) AS sml FROM users WHERE login % $1 ORDER BY sml DESC, login LIMIT 12;", [req.params.partialLogin])
+      .then(data => {
+        res.status(200)
+          .json({
+            status: 'success',
+            data,
+          })
+      })
+    });
+});
 
 module.exports = router;
