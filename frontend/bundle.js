@@ -26753,10 +26753,95 @@ exports.default = initializeAppStore;
 
 /***/ }),
 /* 203 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-throw new Error("Module build failed: SyntaxError: Unexpected token, expected while (50:2)\n\n\u001b[0m \u001b[90m 48 | \u001b[39m    \u001b[36mdo\u001b[39m(console\u001b[33m.\u001b[39mlog(data))\n \u001b[90m 49 | \u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 50 | \u001b[39m  clearSuggestions$\n \u001b[90m    | \u001b[39m  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 51 | \u001b[39m    \u001b[33m.\u001b[39m\u001b[36mdo\u001b[39m(() \u001b[33m=>\u001b[39m $listRoot\u001b[33m.\u001b[39mempty())\n \u001b[90m 52 | \u001b[39m    \u001b[33m.\u001b[39mflatMap(() \u001b[33m=>\u001b[39m suggestedUsers$\u001b[33m.\u001b[39mtakeUntil(clearSuggestions$))\n \u001b[90m 53 | \u001b[39m    \u001b[33m.\u001b[39mforEach(res \u001b[33m=>\u001b[39m {\u001b[0m\n");
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _utils = __webpack_require__(111);
+
+var _rxjs = __webpack_require__(169);
+
+var _rxjs2 = _interopRequireDefault(_rxjs);
+
+var _jquery = __webpack_require__(81);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var searchSuggestions = function searchSuggestions() {
+  var $input = (0, _jquery2.default)('#input_text');
+  var $listRoot = (0, _jquery2.default)('.collection');
+  var subject = new _rxjs2.default.Subject();
+
+  var getSuggestedUsers = function getSuggestedUsers(term) {
+    return _jquery2.default.ajax({
+      url: 'https://shipt-github-user-search.herokuapp.com/api/users/' + term,
+      dataType: 'json'
+    }).promise();
+  };
+
+  var _Rx$Observable$fromEv = _rxjs2.default.Observable.fromEvent($input, 'keydown').pluck("which").filter(function (key) {
+    return [38, 40, 13].includes(key);
+  }).partition(function (key) {
+    return key % 2 === 0;
+  } // enter code is odd, up and down are even
+
+  ),
+      _Rx$Observable$fromEv2 = _slicedToArray(_Rx$Observable$fromEv, 2),
+      arrowScrolls$ = _Rx$Observable$fromEv2[0],
+      enterKeys$ = _Rx$Observable$fromEv2[1];
+
+  arrowScrolls$.map(function (key) {
+    return key === 40 ? ['first-child', _utils.$next] : ['last-child', _utils.$prev];
+  }).forEach(function (args) {
+    return (0, _jquery2.default)('.selected').length ? (0, _utils.scroll)((0, _jquery2.default)('.selected'), args[1]) : (0, _utils.$select)((0, _jquery2.default)('.user:' + args[0]));
+  });
+
+  var multicasted = enterKeys$.multicast(subject);
+  multicasted.filter(function (e) {
+    return (0, _jquery2.default)('.selected').length > 0;
+  }).forEach(function (e) {
+    $input.val((0, _jquery2.default)(".selected").text());
+    (0, _jquery2.default)('form').trigger('submit');
+  });
+
+  _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit').subscribe(function () {
+    return $input.blur();
+  });
+
+  multicasted.connect();
+
+  var _Rx$Observable$fromEv3 = _rxjs2.default.Observable.fromEvent($input, 'keyup').pluck("target", "value").partition(function (text) {
+    return text.length > 0 && text.length > 2;
+  }),
+      _Rx$Observable$fromEv4 = _slicedToArray(_Rx$Observable$fromEv3, 2),
+      suggestionRequests$ = _Rx$Observable$fromEv4[0],
+      clearSearchField$ = _Rx$Observable$fromEv4[1];
+
+  var clearSuggestions$ = _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$, multicasted);
+
+  var suggestedUsers$ = suggestionRequests$.debounceTime(350).distinctUntilChanged().switchMap(getSuggestedUsers).pluck(['data', 'rows']).do(console.log(data));
+
+  clearSuggestions$.do(function () {
+    return $listRoot.empty();
+  }).flatMap(function () {
+    return suggestedUsers$.takeUntil(clearSuggestions$);
+  }).forEach(function (res) {
+    $listRoot.empty().append(_jquery2.default.map(res, function (u) {
+      return (0, _jquery2.default)('<a href="#!" class="collection-item user">' + u.login + '</a>');
+    }));
+  });
+};
+
+exports.default = searchSuggestions;
 
 /***/ }),
 /* 204 */

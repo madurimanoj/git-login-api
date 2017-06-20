@@ -45,7 +45,7 @@ const searchSuggestions = () => {
     .distinctUntilChanged()
     .switchMap(getSuggestedUsers)
     .pluck(['data', 'rows'])
-    do(console.log(data))
+    .do(console.log(data))
 
   clearSuggestions$
     .do(() => $listRoot.empty())
