@@ -26514,9 +26514,9 @@ var searchSuggestions = function searchSuggestions() {
   var multicasted = enterKeys$.multicast(subject);
   multicasted.filter(function (e) {
     return (0, _jquery2.default)('.selected').length > 0;
-  }).merge(_rxjs2.default.Observable.fromEvent((0, _jquery2.default)(document), 'click')).filter(function (e) {
+  }).merge(_rxjs2.default.Observable.fromEvent((0, _jquery2.default)(document), 'click').filter(function (e) {
     return e.target.classList.contains('selected');
-  }).forEach(function () {
+  })).forEach(function () {
     $input.val((0, _jquery2.default)(".selected").text());
     (0, _jquery2.default)('form').trigger('submit');
   });
