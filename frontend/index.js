@@ -1,6 +1,6 @@
-import searchSuggestions   from './searchSuggestions'
-import initializeAppStore  from './appState'
-import createRenderer      from './vdom'
+import searchSuggestions   from './state/searchSuggestions'
+import initializeAppStore  from './state/appState'
+import createRenderer      from './state/vdom'
 
 $(document).ready(() => {
   document.getElementById('root')

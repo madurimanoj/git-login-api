@@ -26610,206 +26610,8 @@ module.exports = g;
 
 
 /***/ }),
-/* 201 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _rxjs = __webpack_require__(168);
-
-var _rxjs2 = _interopRequireDefault(_rxjs);
-
-var _jquery = __webpack_require__(81);
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-var _immutable = __webpack_require__(50);
-
-var _utils = __webpack_require__(110);
-
-var _initialState = __webpack_require__(218);
-
-var _initialState2 = _interopRequireDefault(_initialState);
-
-var _vdom = __webpack_require__(219);
-
-var _vdom2 = _interopRequireDefault(_vdom);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var initializeAppStore = function initializeAppStore() {
-  var subject = new _rxjs2.default.Subject();
-  var source$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit');
-  var searchStreamMulticast = source$.multicast(subject);
-
-  var loadMoreUsersSubject = new _rxjs2.default.Subject();
-  var broadcast = function broadcast(url) {
-    return loadMoreUsersSubject.next(url);
-  };
-
-  var $input = (0, _jquery2.default)('#input_text'
-
-  // Getting both the user info for the search and the user's followers.
-
-  );var followerRequests$ = searchStreamMulticast.map(function (e) {
-    e.preventDefault();
-    return (0, _utils.followersUrl)($input.val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
-  }).merge(loadMoreUsersSubject).map(function (requestUrl) {
-    return _jquery2.default.ajax({ url: requestUrl });
-  });
-
-  var followersStream$ = followerRequests$.flatMap(function (res) {
-    return _rxjs2.default.Observable.fromPromise(res);
-  }).map(function (res) {
-    return function (state) {
-      var newState = state.get('followers').concat((0, _immutable.fromJS)(res));
-      return state.set("followers", newState);
-    };
-  });
-
-  var userStream$ = searchStreamMulticast.map(function (e) {
-    return (0, _utils.userUrl)((0, _jquery2.default)('#input_text').val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
-  }).flatMap(function (requestUrl) {
-    return _rxjs2.default.Observable.fromPromise(_jquery2.default.ajax({ url: requestUrl }));
-  }).map(function (res) {
-    return function (state) {
-      var newUserInfo = new _immutable.Map({
-        avatarUrl: res.avatar_url,
-        followerCount: res.followers,
-        url: res.html_url,
-        login: res.login
-      });
-      return state.set("user", newUserInfo);
-    };
-  });
-
-  searchStreamMulticast.connect
-
-  // Load More Button
-
-  ();var paginationStream$ = followerRequests$.flatMap(function (res) {
-    return res.then(function (data, s, xhr) {
-      return (0, _utils.formatURL)(xhr.getResponseHeader('link'));
-    });
-  }).map(function (link) {
-    return function (state) {
-      return state.set("pagination", new _immutable.Map({ hasMore: !!link, nextPage: link }));
-    };
-  }
-
-  // state store
-
-  );var state = _rxjs2.default.Observable.merge(searchStreamMulticast.map(_utils.clearState), followersStream$, paginationStream$, userStream$).retry().scan(function (state, updateFn) {
-    return updateFn(state);
-  }, _initialState2.default);
-
-  return {
-    state: state,
-    broadcast: broadcast,
-    initialState: _initialState2.default
-  };
-};
-
-exports.default = initializeAppStore;
-
-/***/ }),
-/* 202 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var _utils = __webpack_require__(110);
-
-var _rxjs = __webpack_require__(168);
-
-var _rxjs2 = _interopRequireDefault(_rxjs);
-
-var _jquery = __webpack_require__(81);
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var searchSuggestions = function searchSuggestions() {
-  var $input = (0, _jquery2.default)('#input_text');
-  var $listRoot = (0, _jquery2.default)('.collection');
-  var subject = new _rxjs2.default.Subject();
-
-  var getSuggestedUsers = function getSuggestedUsers(term) {
-    return _jquery2.default.ajax({
-      url: 'http://localhost:3000/api/users/' + term,
-      dataType: 'json'
-    }).promise();
-  };
-
-  var _Rx$Observable$fromEv = _rxjs2.default.Observable.fromEvent($input, 'keydown').pluck("which").filter(function (key) {
-    return [38, 40, 13].includes(key);
-  }).partition(function (key) {
-    return key % 2 === 0;
-  } // enter code is odd, up and down are even
-
-  ),
-      _Rx$Observable$fromEv2 = _slicedToArray(_Rx$Observable$fromEv, 2),
-      arrowScrolls$ = _Rx$Observable$fromEv2[0],
-      enterKeys$ = _Rx$Observable$fromEv2[1];
-
-  arrowScrolls$.map(function (key) {
-    return key === 40 ? ['first-child', _utils.$next] : ['last-child', _utils.$prev];
-  }).forEach(function (args) {
-    return (0, _jquery2.default)('.selected').length ? (0, _utils.scroll)((0, _jquery2.default)('.selected'), args[1]) : (0, _utils.$select)((0, _jquery2.default)('.user:' + args[0]));
-  });
-
-  var multicasted = enterKeys$.multicast(subject);
-  multicasted.filter(function (e) {
-    return (0, _jquery2.default)('.selected').length > 0;
-  }).forEach(function (e) {
-    $input.val((0, _jquery2.default)(".selected").text());
-    (0, _jquery2.default)('form').trigger('submit');
-  });
-
-  _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit').subscribe(function () {
-    return $input.blur();
-  });
-
-  multicasted.connect();
-
-  var _Rx$Observable$fromEv3 = _rxjs2.default.Observable.fromEvent($input, 'keyup').pluck("target", "value").partition(function (text) {
-    return text.length > 0 && text.length > 2;
-  }),
-      _Rx$Observable$fromEv4 = _slicedToArray(_Rx$Observable$fromEv3, 2),
-      suggestionRequests$ = _Rx$Observable$fromEv4[0],
-      clearSearchField$ = _Rx$Observable$fromEv4[1];
-
-  var clearSuggestions$ = _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$, multicasted);
-
-  var suggestedUsers$ = suggestionRequests$.debounceTime(350).distinctUntilChanged().switchMap(getSuggestedUsers).pluck('data');
-
-  clearSuggestions$.do(function () {
-    return $listRoot.empty();
-  }).flatMap(function () {
-    return suggestedUsers$.takeUntil(clearSuggestions$);
-  }).forEach(function (res) {
-    $listRoot.empty().append(_jquery2.default.map(res, function (u) {
-      return (0, _jquery2.default)('<a href="#!" class="collection-item user">' + u.login + '</a>');
-    }));
-  });
-};
-
-exports.default = searchSuggestions;
-
-/***/ }),
+/* 201 */,
+/* 202 */,
 /* 203 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -27365,15 +27167,15 @@ exports.default = view;
 "use strict";
 
 
-var _searchSuggestions = __webpack_require__(202);
+var _searchSuggestions = __webpack_require__(708);
 
 var _searchSuggestions2 = _interopRequireDefault(_searchSuggestions);
 
-var _appState = __webpack_require__(201);
+var _appState = __webpack_require__(707);
 
 var _appState2 = _interopRequireDefault(_appState);
 
-var _vdom = __webpack_require__(219);
+var _vdom = __webpack_require__(706);
 
 var _vdom2 = _interopRequireDefault(_vdom);
 
@@ -27417,40 +27219,7 @@ var initialState = new _immutable.Map({
 exports.default = initialState;
 
 /***/ }),
-/* 219 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _snabbdom = __webpack_require__(704);
-
-var _h = __webpack_require__(33);
-
-var _h2 = _interopRequireDefault(_h);
-
-var _view = __webpack_require__(216);
-
-var _view2 = _interopRequireDefault(_view);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var patch = (0, _snabbdom.init)([__webpack_require__(700).default, __webpack_require__(703).default, __webpack_require__(702).default, __webpack_require__(701).default]);
-
-var createRenderer = function createRenderer(root, initialState, broadcastFn) {
-  var vnode = patch(root, (0, _view2.default)(initialState, broadcastFn));
-  return function (state, broadcastFn) {
-    vnode = patch(vnode, (0, _view2.default)(state, broadcastFn));
-  };
-};
-
-exports.default = createRenderer;
-
-/***/ }),
+/* 219 */,
 /* 220 */
 /***/ (function(module, exports) {
 
@@ -49582,6 +49351,240 @@ exports.thunk = function thunk(sel, key, fn, args) {
 };
 exports.default = exports.thunk;
 //# sourceMappingURL=thunk.js.map
+
+/***/ }),
+/* 706 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdom = __webpack_require__(704);
+
+var _h = __webpack_require__(33);
+
+var _h2 = _interopRequireDefault(_h);
+
+var _view = __webpack_require__(216);
+
+var _view2 = _interopRequireDefault(_view);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var patch = (0, _snabbdom.init)([__webpack_require__(700).default, __webpack_require__(703).default, __webpack_require__(702).default, __webpack_require__(701).default]);
+
+var createRenderer = function createRenderer(root, initialState, broadcastFn) {
+  var vnode = patch(root, (0, _view2.default)(initialState, broadcastFn));
+  return function (state, broadcastFn) {
+    vnode = patch(vnode, (0, _view2.default)(state, broadcastFn));
+  };
+};
+
+exports.default = createRenderer;
+
+/***/ }),
+/* 707 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _rxjs = __webpack_require__(168);
+
+var _rxjs2 = _interopRequireDefault(_rxjs);
+
+var _jquery = __webpack_require__(81);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _immutable = __webpack_require__(50);
+
+var _utils = __webpack_require__(110);
+
+var _initialState = __webpack_require__(218);
+
+var _initialState2 = _interopRequireDefault(_initialState);
+
+var _vdom = __webpack_require__(706);
+
+var _vdom2 = _interopRequireDefault(_vdom);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var initializeAppStore = function initializeAppStore() {
+  var subject = new _rxjs2.default.Subject();
+  var source$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit');
+  var searchStreamMulticast = source$.multicast(subject);
+
+  var loadMoreUsersSubject = new _rxjs2.default.Subject();
+  var broadcast = function broadcast(url) {
+    return loadMoreUsersSubject.next(url);
+  };
+
+  var $input = (0, _jquery2.default)('#input_text'
+
+  // Getting both the user info for the search and the user's followers.
+
+  );var followerRequests$ = searchStreamMulticast.map(function (e) {
+    e.preventDefault();
+    return (0, _utils.followersUrl)($input.val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
+  }).merge(loadMoreUsersSubject).map(function (requestUrl) {
+    return _jquery2.default.ajax({ url: requestUrl });
+  });
+
+  var followersStream$ = followerRequests$.flatMap(function (res) {
+    return _rxjs2.default.Observable.fromPromise(res);
+  }).map(function (res) {
+    return function (state) {
+      var newState = state.get('followers').concat((0, _immutable.fromJS)(res));
+      return state.set("followers", newState);
+    };
+  });
+
+  var userStream$ = searchStreamMulticast.map(function (e) {
+    return (0, _utils.userUrl)((0, _jquery2.default)('#input_text').val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
+  }).flatMap(function (requestUrl) {
+    return _rxjs2.default.Observable.fromPromise(_jquery2.default.ajax({ url: requestUrl }));
+  }).map(function (res) {
+    return function (state) {
+      var newUserInfo = new _immutable.Map({
+        avatarUrl: res.avatar_url,
+        followerCount: res.followers,
+        url: res.html_url,
+        login: res.login
+      });
+      return state.set("user", newUserInfo);
+    };
+  });
+
+  searchStreamMulticast.connect
+
+  // Load More Button
+
+  ();var paginationStream$ = followerRequests$.flatMap(function (res) {
+    return res.then(function (data, s, xhr) {
+      return (0, _utils.formatURL)(xhr.getResponseHeader('link'));
+    });
+  }).map(function (link) {
+    return function (state) {
+      return state.set("pagination", new _immutable.Map({ hasMore: !!link, nextPage: link }));
+    };
+  }
+
+  // state store
+
+  );var state = _rxjs2.default.Observable.merge(searchStreamMulticast.map(_utils.clearState), followersStream$, paginationStream$, userStream$).retry().scan(function (state, updateFn) {
+    return updateFn(state);
+  }, _initialState2.default);
+
+  return {
+    state: state,
+    broadcast: broadcast,
+    initialState: _initialState2.default
+  };
+};
+
+exports.default = initializeAppStore;
+
+/***/ }),
+/* 708 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _utils = __webpack_require__(110);
+
+var _rxjs = __webpack_require__(168);
+
+var _rxjs2 = _interopRequireDefault(_rxjs);
+
+var _jquery = __webpack_require__(81);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var searchSuggestions = function searchSuggestions() {
+  var $input = (0, _jquery2.default)('#input_text');
+  var $listRoot = (0, _jquery2.default)('.collection');
+  var subject = new _rxjs2.default.Subject();
+
+  var getSuggestedUsers = function getSuggestedUsers(term) {
+    return _jquery2.default.ajax({
+      url: 'http://localhost:3000/api/users/' + term,
+      dataType: 'json'
+    }).promise();
+  };
+
+  var _Rx$Observable$fromEv = _rxjs2.default.Observable.fromEvent($input, 'keydown').pluck("which").filter(function (key) {
+    return [38, 40, 13].includes(key);
+  }).partition(function (key) {
+    return key % 2 === 0;
+  } // enter code is odd, up and down are even
+
+  ),
+      _Rx$Observable$fromEv2 = _slicedToArray(_Rx$Observable$fromEv, 2),
+      arrowScrolls$ = _Rx$Observable$fromEv2[0],
+      enterKeys$ = _Rx$Observable$fromEv2[1];
+
+  arrowScrolls$.map(function (key) {
+    return key === 40 ? ['first-child', _utils.$next] : ['last-child', _utils.$prev];
+  }).forEach(function (args) {
+    return (0, _jquery2.default)('.selected').length ? (0, _utils.scroll)((0, _jquery2.default)('.selected'), args[1]) : (0, _utils.$select)((0, _jquery2.default)('.user:' + args[0]));
+  });
+
+  var multicasted = enterKeys$.multicast(subject);
+  multicasted.filter(function (e) {
+    return (0, _jquery2.default)('.selected').length > 0;
+  }).forEach(function (e) {
+    $input.val((0, _jquery2.default)(".selected").text());
+    (0, _jquery2.default)('form').trigger('submit');
+  });
+
+  _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit').subscribe(function () {
+    return $input.blur();
+  });
+
+  multicasted.connect();
+
+  var _Rx$Observable$fromEv3 = _rxjs2.default.Observable.fromEvent($input, 'keyup').pluck("target", "value").partition(function (text) {
+    return text.length > 0 && text.length > 2;
+  }),
+      _Rx$Observable$fromEv4 = _slicedToArray(_Rx$Observable$fromEv3, 2),
+      suggestionRequests$ = _Rx$Observable$fromEv4[0],
+      clearSearchField$ = _Rx$Observable$fromEv4[1];
+
+  var clearSuggestions$ = _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$, multicasted);
+
+  var suggestedUsers$ = suggestionRequests$.debounceTime(350).distinctUntilChanged().switchMap(getSuggestedUsers).pluck('data');
+
+  clearSuggestions$.do(function () {
+    return $listRoot.empty();
+  }).flatMap(function () {
+    return suggestedUsers$.takeUntil(clearSuggestions$);
+  }).forEach(function (res) {
+    $listRoot.empty().append(_jquery2.default.map(res, function (u) {
+      return (0, _jquery2.default)('<a href="#!" class="collection-item user">' + u.login + '</a>');
+    }));
+  });
+};
+
+exports.default = searchSuggestions;
 
 /***/ })
 /******/ ]);

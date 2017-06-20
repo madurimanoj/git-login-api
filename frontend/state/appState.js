@@ -7,8 +7,8 @@ import {
   clearState,
   userUrl,
   followersUrl
-}                               from './utils'
-import initialState             from './models/initialState'
+}                               from './../utils'
+import initialState             from './../models/initialState'
 import createRenderer           from './vdom'
 
 

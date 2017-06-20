@@ -1,4 +1,4 @@
-import { scroll, $next, $prev, $select } from './utils'
+import { scroll, $next, $prev, $select } from './../utils'
 import Rx from 'rxjs'
 import $ from 'jquery'
 

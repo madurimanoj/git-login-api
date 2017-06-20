@@ -1,6 +1,6 @@
 import { init }                 from 'snabbdom'
 import h                        from 'snabbdom/h'
-import view                     from './Components/view'
+import view                     from './../Components/view'
 
 const patch = init([
   require('snabbdom/modules/class').default,
