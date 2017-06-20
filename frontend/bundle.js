@@ -26783,10 +26783,11 @@ var searchSuggestions = function searchSuggestions() {
 
   var getSuggestedUsers = function getSuggestedUsers(term) {
     return _jquery2.default.ajax({
-      url: 'http://localhost:3000/api/users/' + term,
+      url: "postgres://jcdiwgsuyjkzwt:2e8474bffe9d87cd1cba14d05995e4b1d6813aa60c94a77de993575618690ec2@ec2-107-21-99-176.compute-1.amazonaws.com:5432/de2q3smt2k755e" + '/' + term,
       dataType: 'json'
     }).promise();
   };
+  console.log("postgres://jcdiwgsuyjkzwt:2e8474bffe9d87cd1cba14d05995e4b1d6813aa60c94a77de993575618690ec2@ec2-107-21-99-176.compute-1.amazonaws.com:5432/de2q3smt2k755e");
 
   var _Rx$Observable$fromEv = _rxjs2.default.Observable.fromEvent($input, 'keydown').pluck("which").filter(function (key) {
     return [38, 40, 13].includes(key);
