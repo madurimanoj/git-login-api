@@ -33,9 +33,7 @@ router.get('/api/users/:partialLogin', function(req, res, next) {
       res.status(200)
         .json({
           status: 'success',
-          data,
-          rows: data.rows
-
+          data: data.rows
         })
     })
   });

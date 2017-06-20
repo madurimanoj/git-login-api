@@ -44,7 +44,7 @@ const searchSuggestions = () => {
   const suggestedUsers$ = suggestionRequests$.debounceTime(350)
     .distinctUntilChanged()
     .switchMap(getSuggestedUsers)
-    .pluck(['data', 'rows'])
+    .pluck('data')
     .do(el => console.log(el))
 
   clearSuggestions$
