@@ -38,6 +38,7 @@ input::-webkit-calendar-picker-indicator {
   display: none;
 }
 ````
+RxJS made did ease some of the pain, but not all of it. I left a fair number of comments in [the file](https://github.com/mbr84/git-login-api/blob/master/frontend/state/searchSuggestions.js)
 
 ## Tests
 I'm very sad to say I didn't write any tests for this project. Time did not permit it, and between the midway point and the end it totally slipped my mind. I might have been able to throw together some tests at the last minute in React or Ruby or were it plain javascript, but testing is not something I've learned to do to RxJS code yet. : (
