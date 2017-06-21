@@ -2,7 +2,7 @@
 [Live](https://shipt-github-user-search.herokuapp.com/)
 
 ## Architecture
-When I get a take-home coding challenge asking for an SPA, I usually use React. It's the framework I'm most comfortable in, and with increasing frequency it's the one in use wherever I happen to be applying to. That being said, my immediate feeling on reading the spec was that the app hardly required anything the size of React. I considered using Vue or Cycle, among others, but ultimately decided to forego frameworks altogether and wire it together with a handful of smaller libraries I grabbed of the shelf.
+When I get a take-home coding challenge asking for an SPA, I usually use React. It's the framework I'm most comfortable in, and with increasing frequency it's the one in use wherever I happen to be applying. That being said, my immediate feeling on reading the spec was that the app hardly required anything the size of React. I considered using Vue or Cycle, among others, but ultimately decided to forego frameworks altogether and wire it together with a handful of smaller libraries I grabbed of the shelf.
 
 ## Managing State: RxJS
 
