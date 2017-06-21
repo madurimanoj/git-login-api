@@ -52,24 +52,25 @@ const searchSuggestions = () => {
   const clearSuggestions$ = Rx.Observable.fromEvent($input, 'blur')
     .merge(clearSearchField$, multicasted)
 
+  const clearSuggestions2$ = clearSuggestions$.share().forEach(() => $listRoot.empty())
+
   const suggestedUsers$ = suggestionRequests$
-    .debounceTime(350)
     .distinctUntilChanged()
+    .debounceTime(350)
     .switchMap(getSuggestedUsers)
     .pluck('data')
 
-    /* what happens here: when you clear the suggestions by blurring the search field,
+/* * What happens here? When you clear the suggestions by blurring the search field,
         submitting a search, or deleting every character from the search field, this code will
 * * flatMap: transform the map(replace) the stream of clear suggestions events with a stream
         of key down events on the search field, which will generate search suggestions.
-    * * takeUntil: the new mapped stream of user suggestions is unsubscribed at the next
-        clear suggestions event.
+  * * takeUntil: the new mapped stream of user suggestions is unsubscribed at the next
+      clear suggestions event.
 * * forEach: what to do for every suggestedUser event between the beginning and ending clear
       suggestion events
 * * The window is exclusive of the bounding clear suggestion events, so we've had to multicast the
       stream and clear the suggestions separately (line 56) */
   clearSuggestions$
-    .do(() => $listRoot.empty())
     .flatMap(() => suggestedUsers$.takeUntil(clearSuggestions$))
     .forEach(res => {
       $listRoot
