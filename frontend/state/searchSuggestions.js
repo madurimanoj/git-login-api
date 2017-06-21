@@ -57,9 +57,17 @@ const searchSuggestions = () => {
     .switchMap(getSuggestedUsers)
     .pluck('data')
 
+    /* what happens here: when you clear the suggestions by blurring the search field,
+    submitting a search, or deleting every character from the search field, this code will
+* * do: clear the list
+* * flatMap: transform the map(replace) the stream of clear suggestions events with a stream
+              of key down events on the search field, which will generate search suggestions.
+    * * takeUntil: the new mapped stream of user suggestions is unsubscribed at the next
+        clear suggestions event.
+* * forEach: what to do for every suggestedUser event between the beginning and ending clear suggestion events */
   clearSuggestions$
     .do(() => $listRoot.empty())
-    .flatMap(() => suggestedUsers$.takeUntil(clearSuggestions$))  //Find diagram in readme
+    .flatMap(() => suggestedUsers$.takeUntil(clearSuggestions$))
     .forEach(res => {
       $listRoot
         .empty()

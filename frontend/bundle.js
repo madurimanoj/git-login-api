@@ -26538,14 +26538,21 @@ var searchSuggestions = function searchSuggestions() {
 
   var clearSuggestions$ = _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$, multicasted);
 
-  var suggestedUsers$ = suggestionRequests$.debounceTime(350).distinctUntilChanged().switchMap(getSuggestedUsers).pluck('data');
+  var suggestedUsers$ = suggestionRequests$.debounceTime(350).distinctUntilChanged().switchMap(getSuggestedUsers).pluck('data'
 
-  clearSuggestions$.do(function () {
+  /* what happens here: when you clear the suggestions by blurring the search field,
+  submitting a search, or deleting every character from the search field, this code will
+  * * do: clear the list
+  * * flatMap: transform the map(replace) the stream of clear suggestions events with a stream
+            of key down events on the search field, which will generate search suggestions.
+  * * takeUntil: the new mapped stream of user suggestions is unsubscribed at the next
+      clear suggestions event.
+  * * forEach: what to do for every suggestedUser event between the beginning and ending clear suggestion events */
+  );clearSuggestions$.do(function () {
     return $listRoot.empty();
   }).flatMap(function () {
     return suggestedUsers$.takeUntil(clearSuggestions$);
-  } //Find diagram in readme
-  ).forEach(function (res) {
+  }).forEach(function (res) {
     $listRoot.empty().append(_jquery2.default.map(res, function (u) {
       return (0, _jquery2.default)('<div class="collection-item user">' + u.login + '</div>');
     }));
