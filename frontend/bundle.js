@@ -26529,28 +26529,36 @@ var searchSuggestions = function searchSuggestions() {
 
   multicasted.connect();
 
-  var _Rx$Observable$fromEv3 = _rxjs2.default.Observable.fromEvent($input, 'keyup').pluck("target", "value").partition(function (text) {
-    return text.length > 0 && text.length > 2;
+  var _Rx$Observable$fromEv3 = _rxjs2.default.Observable.fromEvent($input, 'keyup').partition(function (e) {
+    return e.which === 8 && e.target.value === 0;
   }),
       _Rx$Observable$fromEv4 = _slicedToArray(_Rx$Observable$fromEv3, 2),
-      suggestionRequests$ = _Rx$Observable$fromEv4[0],
-      clearSearchField$ = _Rx$Observable$fromEv4[1];
+      clearSearchField$ = _Rx$Observable$fromEv4[0],
+      suggestionRequests$ = _Rx$Observable$fromEv4[1];
 
   var clearSuggestions$ = _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$, multicasted);
 
-  var suggestedUsers$ = suggestionRequests$.debounceTime(350).distinctUntilChanged().switchMap(getSuggestedUsers).pluck('data'
-
-  /* what happens here: when you clear the suggestions by blurring the search field,
-  submitting a search, or deleting every character from the search field, this code will
-  * * do: clear the list
-  * * flatMap: transform the map(replace) the stream of clear suggestions events with a stream
-            of key down events on the search field, which will generate search suggestions.
-  * * takeUntil: the new mapped stream of user suggestions is unsubscribed at the next
-      clear suggestions event.
-  * * forEach: what to do for every suggestedUser event between the beginning and ending clear suggestion events */
-  );clearSuggestions$.do(function () {
+  var clearSuggestionsMulticast = clearSuggestions$.multicast(new _rxjs2.default.Subject());
+  clearSuggestionsMulticast.connect();
+  clearSuggestionsMulticast.forEach(function (e) {
     return $listRoot.empty();
-  }).flatMap(function () {
+  });
+
+  var suggestedUsers$ = suggestionRequests$.pluck(['target', 'value']).filter(function (text) {
+    return text && text.length > 2;
+  }).debounceTime(350).distinctUntilChanged().switchMap(getSuggestedUsers).pluck('data'
+
+  /* what happens here: when an event like blurring the search input, submitting a search
+      or deleting every character from the search field, the op below will  
+  * * flatMap: transform the map(replace) the stream of clear suggestions events with a stream
+        of key down events on the search field, which will generate search suggestions.
+    * * takeUntil: the new mapped stream of user suggestions is unsubscribed at the next
+        clear suggestions event.
+  * * forEach: what to do for every suggestedUser event between the beginning and ending clear
+    suggestion events
+  * * The window is exclusive of the bounding clear suggestion events, so we've had to multicast the
+    stream and clear the suggestions separately (line 56) */
+  );clearSuggestionsMulticast.flatMap(function () {
     return suggestedUsers$.takeUntil(clearSuggestions$);
   }).forEach(function (res) {
     $listRoot.empty().append(_jquery2.default.map(res, function (u) {

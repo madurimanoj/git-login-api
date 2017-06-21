@@ -45,34 +45,42 @@ const searchSuggestions = () => {
 
   multicasted.connect()
 
-  const [suggestionRequests$, clearSearchField$] = Rx.Observable.fromEvent($input, 'keyup')
-    .pluck("target", "value")
-    .partition(text => text.length > 0 && text.length > 2)
+  const [clearSearchField$, suggestionRequests$] = Rx.Observable.fromEvent($input, 'keyup')
+    .partition(e => e.which === 8 && e.target.value === 0)
 
   const clearSuggestions$ = Rx.Observable.fromEvent($input, 'blur')
     .merge(clearSearchField$, multicasted)
 
-  const suggestedUsers$ = suggestionRequests$.debounceTime(350)
+  const clearSuggestionsMulticast = clearSuggestions$.multicast(new Rx.Subject())
+  clearSuggestionsMulticast.connect()
+  clearSuggestionsMulticast.forEach((e) => $listRoot.empty())
+
+  const suggestedUsers$ = suggestionRequests$
+    .pluck(['target', 'value'])
+    .filter(text => text && text.length > 2)
+    .debounceTime(350)
     .distinctUntilChanged()
     .switchMap(getSuggestedUsers)
     .pluck('data')
 
-    /* what happens here: when you clear the suggestions by blurring the search field,
-    submitting a search, or deleting every character from the search field, this code will
-* * do: clear the list
-* * flatMap: transform the map(replace) the stream of clear suggestions events with a stream
-              of key down events on the search field, which will generate search suggestions.
-    * * takeUntil: the new mapped stream of user suggestions is unsubscribed at the next
-        clear suggestions event.
-* * forEach: what to do for every suggestedUser event between the beginning and ending clear suggestion events */
-  clearSuggestions$
-    .do(() => $listRoot.empty())
+    /* what happens here: when an event like blurring the search input, submitting a search
+        or deleting every character from the search field, the op below will  
+  * * flatMap: transform the map(replace) the stream of clear suggestions events with a stream
+          of key down events on the search field, which will generate search suggestions.
+      * * takeUntil: the new mapped stream of user suggestions is unsubscribed at the next
+          clear suggestions event.
+  * * forEach: what to do for every suggestedUser event between the beginning and ending clear
+      suggestion events
+  * * The window is exclusive of the bounding clear suggestion events, so we've had to multicast the
+      stream and clear the suggestions separately (line 56) */
+  clearSuggestionsMulticast
     .flatMap(() => suggestedUsers$.takeUntil(clearSuggestions$))
     .forEach(res => {
       $listRoot
         .empty()
         .append($.map(res, (u) => $(`<div class="collection-item user">${u.login}</div>`)))
   })
+
 }
 
 export default searchSuggestions
