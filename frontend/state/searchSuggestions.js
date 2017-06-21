@@ -53,8 +53,6 @@ const searchSuggestions = () => {
     .merge(clearSearchField$, multicasted)
 
   const suggestedUsers$ = suggestionRequests$
-  .do(d => console.log(d))
-    .pluck('value')
     .debounceTime(350)
     .distinctUntilChanged()
     .switchMap(getSuggestedUsers)
@@ -63,7 +61,7 @@ const searchSuggestions = () => {
     /* what happens here: when you clear the suggestions by blurring the search field,
         submitting a search, or deleting every character from the search field, this code will
 * * flatMap: transform the map(replace) the stream of clear suggestions events with a stream
-              of key down events on the search field, which will generate search suggestions.
+        of key down events on the search field, which will generate search suggestions.
     * * takeUntil: the new mapped stream of user suggestions is unsubscribed at the next
         clear suggestions event.
 * * forEach: what to do for every suggestedUser event between the beginning and ending clear
