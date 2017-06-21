@@ -22,6 +22,7 @@ Just becuase I didn't think the app needed a shiny new framework doesn't mean I 
 I used Materialize for the search input form. I started to use it's search suggestions/autocomplete option but it was super janky, and wasn't giving me suggestions half the time. I kept the css for the input field, but built the search suggester myself.
 
 ## Search Suggestions
+##### Please note that the quality of the search suggestions is adversely affected at times by the freeness of the dynos!!
 
 ### Backend
 Github's Api doesn't support username suggestions, but suggestions are the obvious feature to add to a user search interface. I felt my only option was to build a back end the supported suggestions. At first, my first choice was ElasticSearch. Full text search + similarity comparison is computationally intense, and it’s the sort of thing ElasticSearch is built for. But then, I discovered that the maximum number of rows in a free Heroku database is 10,000. That's not that many. Instead of elasticsearch I went with a postgres trigram comparison search. It works by breaking words into groups of 3-letter substrings, starting at string[-2..0] and ending with a trigram made of just the last letter. It then counts the number of matches and near matches between all the trigrams from every pair of words, and returns a similarity score (0 <= s <= 1). There's a Postgres extension you can add with “CREATE EXTENSION pg_trgm" that adds a couple indexing functions optimized in different ways for full text similarity search.
