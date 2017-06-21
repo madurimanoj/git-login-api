@@ -35,7 +35,7 @@ The frontend component of auto-complete search suggestions is notoriously painfu
 * Do not expect the UI to cooperate
   * There's actually a new input type 'datalist' that makes this easy, but it's really janky and it's weirdly hard to change it's defaults. For example if you want to get rid of the little downward pointing arrow that displays by default, look at this ridiculousness you have to do: 
 ````
-  input::-webkit-calendar-picker-indicator {
+input::-webkit-calendar-picker-indicator {
   display: none;
 }
 ````
