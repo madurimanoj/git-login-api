@@ -8,7 +8,7 @@ import {
   userUrl,
   followersUrl
 }                               from './../utils'
-import initialState             from './../models/initialState'
+import initialState             from './initialState'
 import createRenderer           from './vdom'
 
 

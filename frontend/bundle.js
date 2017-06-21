@@ -26363,7 +26363,7 @@ var _immutable = __webpack_require__(50);
 
 var _utils = __webpack_require__(218);
 
-var _initialState = __webpack_require__(217);
+var _initialState = __webpack_require__(706);
 
 var _initialState2 = _interopRequireDefault(_initialState);
 
@@ -27141,27 +27141,7 @@ $(document).ready(function () {
 });
 
 /***/ }),
-/* 217 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _immutable = __webpack_require__(50);
-
-var initialState = new _immutable.Map({
-  followers: new _immutable.List(),
-  pagination: new _immutable.Map({ hasMore: false, nextPage: "" }),
-  user: new _immutable.Map({})
-});
-
-exports.default = initialState;
-
-/***/ }),
+/* 217 */,
 /* 218 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -49596,6 +49576,27 @@ exports.thunk = function thunk(sel, key, fn, args) {
 };
 exports.default = exports.thunk;
 //# sourceMappingURL=thunk.js.map
+
+/***/ }),
+/* 706 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _immutable = __webpack_require__(50);
+
+var initialState = new _immutable.Map({
+  followers: new _immutable.List(),
+  pagination: new _immutable.Map({ hasMore: false, nextPage: "" }),
+  user: new _immutable.Map({})
+});
+
+exports.default = initialState;
 
 /***/ })
 /******/ ]);
