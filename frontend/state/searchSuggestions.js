@@ -60,16 +60,19 @@ const searchSuggestions = () => {
     .switchMap(getSuggestedUsers)
     .pluck('data')
 
-/* * What happens here? When you clear the suggestions by blurring the search field,
-        submitting a search, or deleting every character from the search field, this code will
-* * flatMap: transform the map(replace) the stream of clear suggestions events with a stream
-        of key down events on the search field, which will generate search suggestions.
-  * * takeUntil: the new mapped stream of user suggestions is unsubscribed at the next
+/* * What happens here? When you clear the suggestions by submitting a search, or deleting
+        every character from the search field, the following code will:
+* * flatMap:  map (replace) the stream of clear-suggestion-events to a stream
+    of suggested users coming in from the API
+  * * takeUntil: the new mapped stream of user suggestions is terminated at the next
       clear suggestions event.
 * * forEach: what to do for every suggestedUser event between the beginning and ending clear
       suggestion events
 * * The window is exclusive of the bounding clear suggestion events, so we've had to multicast the
-      stream and clear the suggestions separately (line 56) */
+      stream and clear suggestions separately (line 55)
+* * BUT WHY?  --- user suggestions are requested on keyup, search submissions and clear
+      suggestions events are on keydown. We don't want to submit a search and clear the
+      suggestions only for them to reappear when we release the enter key */
   clearSuggestions$
     .flatMap(() => suggestedUsers$.takeUntil(clearSuggestions$))
     .forEach(res => {
