@@ -7,14 +7,13 @@ When I get a take-home coding challenge asking for an SPA, I usually use React. 
 ## Managing State: RxJS
 
 ### What is RxJS
-For managing state I chose RxJS (Reactive extensions for javascript). I'm fairly new to reactive programming, but very enthusiastic. The motto of it is something like 'everything is (or can be treated as) a stream.'Anyway, 'stream' is short for 'asynchronous data stream,' and it can mean anything from clicks on a button to the incremental arrival of data from netflix when you try to 'stream' a movie. We already deal with streams all the time; but the insight behind RxJS is to treat streams as arrays. If a stream of clicks is an array, I can call forEach on it. I can call map and filter and reduce on it. I can sharpen and transform it in myriad ways, declaratively, and without needing to rely on any external or global variables to track my application state.
+For managing state I chose RxJS (Reactive extensions for javascript). I'm fairly new to reactive programming, but very enthusiastic. The motto of it is something like 'everything is (or can be treated as) a stream. 'Anyway, 'stream' is short for 'asynchronous data stream,' and it can mean anything from clicks on a button to the incremental arrival of data from netflix when you try to 'stream' a movie. We already deal with streams all the time. The insight behind RxJS is that we can treat streams as arrays. So what? Well, if a stream of clicks is an array, I can call forEach on it. I can call map and filter and reduce on it. I can sharpen and transform it in myriad ways, declaratively, and without needing to rely on any external or global variables to track my application state.
 
 ### How did I use RxJS
-Rx.Observable.scan is a reduce-adjacent iterator (in RxJS-speak, an 'operator'), that publishes it's accumulator after every iteration rather than just at the end. Which makes if perfect for DIY Redux. Look out Dan Abramov.
-I also used it for my search suggestions feature.
+Rx.Observable.scan is a reduce-adjacent iterator (in RxJS-speak, an 'operator'), that publishes it's accumulator after every iteration, rather than just at the end. Which makes if perfect for DIY Redux. Look out Dan Abramov.
 
 ## Actions
-I broke the app out into 3 views: the list of followers, the user card, and the load more button. I didn't treat the search bar as a simple view. In my build its both a visible and interactive component of the app, as well as a mediator, or action creator, between the views and state store.If you click a followers card, their name replaces the current value in the search bar, the search bar value propagates to the state store, the state store updates the views. A nice unidirectional data flow.
+I broke the app out into 3 views: the list of followers, the user card, and the load more button. I didn't treat the search bar as a simple view. In my build its both a visible and interactive component of the app, as well as a mediator, or action creator, between the views and state store. If you click a follower's card, their name replaces the current value in the search bar, the new value in the search bar is propagated to the state store, the state store updates the views. A nice unidirectional data flow.
 
 ## Views and rendering: hypertext and snabbdom
 Just becuase I didn't think the app needed a shiny new framework doesn't mean I planned to make it janky. I used a library called Snabbdom, a virtual dom, to keep the dom updated and all the animations fresh.
