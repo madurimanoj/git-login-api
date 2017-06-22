@@ -26794,7 +26794,7 @@ var searchSuggestions = function searchSuggestions() {
     return [38, 40, 13].includes(key);
   }).partition(function (key) {
     return key % 2 === 0;
-  } // enter (13) is odd; up and down and even
+  } // enter (13) is odd; up and down are even
   // #partition splits an Observable into 2 based on condition
 
   ),

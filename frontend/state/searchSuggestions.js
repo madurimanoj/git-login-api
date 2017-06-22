@@ -18,7 +18,7 @@ const searchSuggestions = () => {
   const [arrowScrolls$, enterKeys$] = Rx.Observable.fromEvent($input, 'keydown')
     .pluck("which")
     .filter(key => [38, 40, 13].includes(key))
-    .partition(key => key % 2 === 0)   // enter (13) is odd; up and down and even
+    .partition(key => key % 2 === 0)   // enter (13) is odd; up and down are even
                                       // #partition splits an Observable into 2 based on condition
 
   arrowScrolls$.map(key => key === 40 ? ['first-child', $next] : ['last-child', $prev])
