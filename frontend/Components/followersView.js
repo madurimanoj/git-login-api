@@ -14,7 +14,7 @@ const followersView = state => {
       },
       style: {
         transform: 'translateY(750px)',
-        transition: `.75s transform ${Math.floor((i % 30) / 2) * .2}s, .5s background-color ease-out, .5s outline ease-out`,
+        transition: `.75s transform ${Math.floor((i % 30) / 2) * .1}s, .5s background-color ease-out, .5s outline ease-out`,
         delayed: { transform: 'none' },
         destroy: { opacity: '0', transition: "opacity 1s"}
       },
