@@ -25,11 +25,6 @@ const searchSuggestions = () => {
     .forEach(args =>
       $(`.selected`).length ? scroll($(`.selected`), args[1]) : $select($(`.user:${args[0]}`)))
 
-        // makes suggestions clickable.
-  Rx.Observable.fromEvent($('.input-field'),'mouseover')
-  	.flatMap(e => Rx.Observable.fromEvent($('.collection-item'), 'mouseenter'))
-  	.forEach(e => $(e.currentTarget).addClass('selected').siblings().removeClass('selected'))
-
   const multicasted = enterKeys$.multicast(subject)
   multicasted.filter(e => $('.selected').length > 0)
     .merge(
@@ -39,6 +34,12 @@ const searchSuggestions = () => {
       $input.val($(".selected").text())
       $('form').trigger('submit')
     })
+
+    // makes suggestions clickable.
+Rx.Observable.fromEvent($('.input-field'),'mouseover')
+.flatMap(e => Rx.Observable.fromEvent($('.collection-item'), 'mouseenter'))
+.forEach(e => $(e.currentTarget).addClass('selected').siblings().removeClass('selected'))
+
 
    // form submits are being preventDefault'd elsewhere. must manually blur inputs/clear suggestions
   Rx.Observable.fromEvent($('form'), 'submit').forEach(() => $input.blur())

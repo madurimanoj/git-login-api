@@ -26806,13 +26806,6 @@ var searchSuggestions = function searchSuggestions() {
     return key === 40 ? ['first-child', _utils.$next] : ['last-child', _utils.$prev];
   }).forEach(function (args) {
     return (0, _jquery2.default)('.selected').length ? (0, _utils.scroll)((0, _jquery2.default)('.selected'), args[1]) : (0, _utils.$select)((0, _jquery2.default)('.user:' + args[0]));
-  }
-
-  // makes suggestions clickable.
-  );_rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.input-field'), 'mouseover').flatMap(function (e) {
-    return _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.collection-item'), 'mouseenter');
-  }).forEach(function (e) {
-    return (0, _jquery2.default)(e.currentTarget).addClass('selected').siblings().removeClass('selected');
   });
 
   var multicasted = enterKeys$.multicast(subject);
@@ -26823,6 +26816,13 @@ var searchSuggestions = function searchSuggestions() {
   })).forEach(function () {
     $input.val((0, _jquery2.default)(".selected").text());
     (0, _jquery2.default)('form').trigger('submit');
+  }
+
+  // makes suggestions clickable.
+  );_rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.input-field'), 'mouseover').flatMap(function (e) {
+    return _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.collection-item'), 'mouseenter');
+  }).forEach(function (e) {
+    return (0, _jquery2.default)(e.currentTarget).addClass('selected').siblings().removeClass('selected');
   }
 
   // form submits are being preventDefault'd elsewhere. must manually blur inputs/clear suggestions
