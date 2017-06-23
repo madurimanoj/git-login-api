@@ -10,7 +10,7 @@ export const $prev = $apply('prev')
 
 const $unselect = $apply('removeClass', 'selected')
 
-export const $select = $apply('addClass', 'selected')
+const $select = $apply('addClass', 'selected')
 
 const compose = (...args) => caller => args.reduce((acc, curr) => curr(acc), caller)
 

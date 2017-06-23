@@ -26,6 +26,7 @@ const searchSuggestions = () => {
       $(`.selected`).length ? scroll($(`.selected`), args[1]) : $select($(`.user:${args[0]}`)))
 
   const multicasted = enterKeys$.multicast(subject)
+  multicasted.connect()
   multicasted.filter(e => $('.selected').length > 0)
     .merge(
       Rx.Observable.fromEvent($(document), 'mousedown')
@@ -36,15 +37,13 @@ const searchSuggestions = () => {
     })
 
     // makes suggestions clickable.
-Rx.Observable.fromEvent($('.input-field'),'mouseover')
-.flatMap(e => Rx.Observable.fromEvent($('.collection-item'), 'mouseenter'))
-.forEach(e => $(e.currentTarget).addClass('selected').siblings().removeClass('selected'))
+  Rx.Observable.fromEvent($('.input-field'),'mouseover')
+    .flatMap(e => Rx.Observable.fromEvent($('.collection-item'), 'mouseenter'))
+    .forEach(e => $(e.currentTarget).addClass('selected').siblings().removeClass('selected'))
 
 
    // form submits are being preventDefault'd elsewhere. must manually blur inputs/clear suggestions
   Rx.Observable.fromEvent($('form'), 'submit').forEach(() => $input.blur())
-
-  multicasted.connect()
 
   const [suggestionRequests$, clearSearchField$] = Rx.Observable.fromEvent($input, 'keyup')
     .pluck("target", "value")
@@ -84,4 +83,4 @@ Rx.Observable.fromEvent($('.input-field'),'mouseover')
 
 }
 
-export default searchSuggestions
+  export default searchSuggestions

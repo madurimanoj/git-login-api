@@ -21461,7 +21461,7 @@ exports.default = createRenderer;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.followersUrl = exports.userUrl = exports.clearState = exports.formatURL = exports.scroll = exports.$select = exports.$prev = exports.$next = undefined;
+exports.followersUrl = exports.userUrl = exports.clearState = exports.formatURL = exports.scroll = exports.$prev = exports.$next = undefined;
 
 var _immutable = __webpack_require__(50);
 
@@ -21483,7 +21483,7 @@ var $prev = exports.$prev = $apply('prev');
 
 var $unselect = $apply('removeClass', 'selected');
 
-var $select = exports.$select = $apply('addClass', 'selected');
+var $select = $apply('addClass', 'selected');
 
 var compose = function compose() {
   for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -26809,6 +26809,7 @@ var searchSuggestions = function searchSuggestions() {
   });
 
   var multicasted = enterKeys$.multicast(subject);
+  multicasted.connect();
   multicasted.filter(function (e) {
     return (0, _jquery2.default)('.selected').length > 0;
   }).merge(_rxjs2.default.Observable.fromEvent((0, _jquery2.default)(document), 'mousedown').filter(function (e) {
@@ -26829,8 +26830,6 @@ var searchSuggestions = function searchSuggestions() {
   );_rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit').forEach(function () {
     return $input.blur();
   });
-
-  multicasted.connect();
 
   var _Rx$Observable$fromEv3 = _rxjs2.default.Observable.fromEvent($input, 'keyup').pluck("target", "value").partition(function (text) {
     return text && text.length > 2;

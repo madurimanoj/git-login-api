@@ -27,11 +27,11 @@ const initializeAppStore = () => {
   // Getting both the user info for the search and the user's followers.
 
   const followerRequests$ = searchStreamMulticast.map(e => {
-    e.preventDefault()
-    return followersUrl($input.val(), process.env.GITHUB_KEY)
-  })
-  .merge(loadMoreUsersSubject)
-  .map(requestUrl => $.ajax({url: requestUrl}))
+      e.preventDefault()
+      return followersUrl($input.val(), process.env.GITHUB_KEY)
+    })
+    .merge(loadMoreUsersSubject)
+    .map(requestUrl => $.ajax({url: requestUrl}))
 
   const followersStream$ = followerRequests$
     .flatMap(res => Rx.Observable.fromPromise(res))
@@ -70,13 +70,13 @@ const initializeAppStore = () => {
   // state store
 
   const state = Rx.Observable.merge(
-    searchStreamMulticast.map(clearState),
-    followersStream$,
-    paginationStream$,
-    userStream$
-  )
-  .retry()
-  .scan((state, updateFn) => updateFn(state), initialState)
+      searchStreamMulticast.map(clearState),
+      followersStream$,
+      paginationStream$,
+      userStream$
+    )
+    .retry()
+    .scan((state, updateFn) => updateFn(state), initialState)
 
   return {
     state,
