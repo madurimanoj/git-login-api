@@ -21461,7 +21461,7 @@ exports.default = createRenderer;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.followersUrl = exports.userUrl = exports.clearState = exports.formatURL = exports.scroll = exports.$prev = exports.$next = undefined;
+exports.followersUrl = exports.userUrl = exports.clearState = exports.formatURL = exports.scroll = exports.$select = exports.$unselect = exports.$prev = exports.$next = undefined;
 
 var _immutable = __webpack_require__(50);
 
@@ -21481,9 +21481,9 @@ var $next = exports.$next = $apply('next');
 
 var $prev = exports.$prev = $apply('prev');
 
-var $unselect = $apply('removeClass', 'selected');
+var $unselect = exports.$unselect = $apply('removeClass', 'selected');
 
-var $select = $apply('addClass', 'selected');
+var $select = exports.$select = $apply('addClass', 'selected');
 
 var compose = function compose() {
   for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
