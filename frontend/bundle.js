@@ -26732,7 +26732,7 @@ var initializeAppStore = function initializeAppStore() {
     });
   }).map(function (link) {
     return function (state) {
-      var hasMore = link.slice(link.length - 1) !== "1";
+      var hasMore = link && link.slice(link.length - 1) !== "1";
       return state.set("pagination", new _immutable.Map({ hasMore: hasMore, nextPage: link }));
     };
   }

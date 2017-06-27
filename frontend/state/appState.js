@@ -65,7 +65,7 @@ const initializeAppStore = () => {
       )
     )
   .map(link => state => {
-    const hasMore = link.slice(link.length - 1) !== "1"
+    const hasMore = link && link.slice(link.length - 1) !== "1"
     return state.set("pagination", new Map({ hasMore, nextPage: link }))
   })
   // state store
