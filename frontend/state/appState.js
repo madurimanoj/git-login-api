@@ -64,9 +64,10 @@ const initializeAppStore = () => {
         formatURL(xhr.getResponseHeader('link'))
       )
     )
-  .map(link => state =>
-    state.set("pagination", new Map({ hasMore: !!link, nextPage: link })))
-
+  .map(link => state => {
+    const hasMore = link.slice(link.length - 1) !== "1"
+    state.set("pagination", new Map({ hasMore, nextPage: link })))
+}
   // state store
 
   const state = Rx.Observable.merge(
