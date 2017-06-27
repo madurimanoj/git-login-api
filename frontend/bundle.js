@@ -26732,10 +26732,10 @@ var initializeAppStore = function initializeAppStore() {
     });
   }).map(function (link) {
     return function (state) {
-      return state.set("pagination", new _immutable.Map({ hasMore: !!link, nextPage: link }));
+      var hasMore = link.slice(link.length - 1) !== "1";
+      state.set("pagination", new _immutable.Map({ hasMore: hasMore, nextPage: link }));
     };
   }
-
   // state store
 
   );var state = _rxjs2.default.Observable.merge(searchStreamMulticast.map(_utils.clearState), followersStream$, paginationStream$, userStream$).retry().scan(function (state, updateFn) {
