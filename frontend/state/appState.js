@@ -17,6 +17,7 @@ const initializeAppStore = () => {
   const subject = new Rx.Subject()
   const source$ = Rx.Observable.fromEvent($('form'), 'submit')
   const searchStreamMulticast = source$.multicast(subject)
+  searchStreamMulticast.connect()
 
   const loadMoreUsersSubject = new Rx.Subject()
   const broadcast = url => loadMoreUsersSubject.next(url)
@@ -34,27 +35,40 @@ const initializeAppStore = () => {
     .map(requestUrl => $.ajax({url: requestUrl}))
 
   const followersStream$ = followerRequests$
-    .flatMap(res => Rx.Observable.fromPromise(res))
-    .map(res => state => {
-      const newState = state.get('followers').concat(fromJS(res))
-      return state.set("followers", newState)
+    .flatMap(res => {
+      return Rx.Observable.fromPromise(res)
+        .catch(err => Rx.Observable.empty())
+        .map(res => state => {
+          const newState = state.get('followers').concat(fromJS(res))
+          return state.set("followers", newState)
+        })
     })
+
 
 
   const userStream$ = searchStreamMulticast
     .map(e => userUrl($($input).val(), process.env.GITHUB_KEY))
-    .flatMap(requestUrl => Rx.Observable.fromPromise($.ajax({url: requestUrl})))
-    .map(res => state => {
-      const newUserInfo = new Map({
-        avatarUrl: res.avatar_url,
-        followerCount: res.followers,
-        url: res.html_url,
-        login: res.login
-      })
-      return state.set("user", newUserInfo)
-    })
+    .flatMap(requestUrl => {
+      return Rx.Observable.fromPromise($.ajax({url: requestUrl}))
+        .catch(err => Rx.Observable.create(obs =>
+          obs.next({
+            avatar_url: '',
+            followers: null,
+            html_url: 'https://github.com',
+            login: `User Not Found`
+          })
+        ))
+        .map(res => state => {
+          const newUserInfo = new Map({
+            avatarUrl: res.avatar_url,
+            followerCount: res.followers,
+            url: res.html_url,
+            login: res.login
+          })
+          return state.set("user", newUserInfo)
+        })
 
-  searchStreamMulticast.connect()
+    })
 
 
   // Load More Button
@@ -62,8 +76,9 @@ const initializeAppStore = () => {
   const paginationStream$ = followerRequests$.flatMap(res =>
     res.then((data, s, xhr) =>
         formatURL(xhr.getResponseHeader('link'))
-      )
     )
+      .catch(err => null)
+  )
   .map(link => state => {
     const hasMore = link && link.slice(link.length - 1) !== "1"
     return state.set("pagination", new Map({ hasMore, nextPage: link }))
@@ -76,7 +91,7 @@ const initializeAppStore = () => {
       paginationStream$,
       userStream$
     )
-    .retry()
+    // .retry()
     .scan((state, updateFn) => updateFn(state), initialState)
 
   return {

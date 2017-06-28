@@ -26680,6 +26680,7 @@ var initializeAppStore = function initializeAppStore() {
   var subject = new _rxjs2.default.Subject();
   var source$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit');
   var searchStreamMulticast = source$.multicast(subject);
+  searchStreamMulticast.connect();
 
   var loadMoreUsersSubject = new _rxjs2.default.Subject();
   var broadcast = function broadcast(url) {
@@ -26698,37 +26699,48 @@ var initializeAppStore = function initializeAppStore() {
   });
 
   var followersStream$ = followerRequests$.flatMap(function (res) {
-    return _rxjs2.default.Observable.fromPromise(res);
-  }).map(function (res) {
-    return function (state) {
-      var newState = state.get('followers').concat((0, _immutable.fromJS)(res));
-      return state.set("followers", newState);
-    };
+    return _rxjs2.default.Observable.fromPromise(res).catch(function (err) {
+      return _rxjs2.default.Observable.empty();
+    }).map(function (res) {
+      return function (state) {
+        var newState = state.get('followers').concat((0, _immutable.fromJS)(res));
+        return state.set("followers", newState);
+      };
+    });
   });
 
   var userStream$ = searchStreamMulticast.map(function (e) {
     return (0, _utils.userUrl)((0, _jquery2.default)($input).val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
   }).flatMap(function (requestUrl) {
-    return _rxjs2.default.Observable.fromPromise(_jquery2.default.ajax({ url: requestUrl }));
-  }).map(function (res) {
-    return function (state) {
-      var newUserInfo = new _immutable.Map({
-        avatarUrl: res.avatar_url,
-        followerCount: res.followers,
-        url: res.html_url,
-        login: res.login
+    return _rxjs2.default.Observable.fromPromise(_jquery2.default.ajax({ url: requestUrl })).catch(function (err) {
+      return _rxjs2.default.Observable.create(function (obs) {
+        return obs.next({
+          avatar_url: '',
+          followers: null,
+          html_url: 'https://github.com',
+          login: 'User Not Found'
+        });
       });
-      return state.set("user", newUserInfo);
-    };
-  });
-
-  searchStreamMulticast.connect
+    }).map(function (res) {
+      return function (state) {
+        var newUserInfo = new _immutable.Map({
+          avatarUrl: res.avatar_url,
+          followerCount: res.followers,
+          url: res.html_url,
+          login: res.login
+        });
+        return state.set("user", newUserInfo);
+      };
+    });
+  }
 
   // Load More Button
 
-  ();var paginationStream$ = followerRequests$.flatMap(function (res) {
+  );var paginationStream$ = followerRequests$.flatMap(function (res) {
     return res.then(function (data, s, xhr) {
       return (0, _utils.formatURL)(xhr.getResponseHeader('link'));
+    }).catch(function (err) {
+      return null;
     });
   }).map(function (link) {
     return function (state) {
@@ -26738,7 +26750,9 @@ var initializeAppStore = function initializeAppStore() {
   }
   // state store
 
-  );var state = _rxjs2.default.Observable.merge(searchStreamMulticast.map(_utils.clearState), followersStream$, paginationStream$, userStream$).retry().scan(function (state, updateFn) {
+  );var state = _rxjs2.default.Observable.merge(searchStreamMulticast.map(_utils.clearState), followersStream$, paginationStream$, userStream$
+  // .retry()
+  ).scan(function (state, updateFn) {
     return updateFn(state);
   }, _initialState2.default);
 
@@ -27344,6 +27358,14 @@ var _snabbdomHelpers = __webpack_require__(78);
 var h = __webpack_require__(33);
 
 var userView = function userView(state) {
+  var followers = state.get("followerCount");
+  var followersSentence = void 0;
+  if (!followers && followers !== 0) {
+    followersSentence = "";
+  } else {
+    followersSentence = followers + ' followers';
+  }
+
   return (0, _snabbdomHelpers.div)({
     selector: '.user-card',
     style: { transition: 'opacity 1s', opacity: '1', destroy: { opacity: "0" } },
@@ -27357,7 +27379,7 @@ var userView = function userView(state) {
         inner: ['' + state.get("login")]
       }), (0, _snabbdomHelpers.h3)({
         selector: '.followers',
-        inner: [state.get("followerCount") + ' followers']
+        inner: [followersSentence]
       })]
     }), (0, _snabbdomHelpers.div)({
       selector: '.avatar',

@@ -2,6 +2,14 @@ import { div, h2, h3 } from 'snabbdom-helpers';
 const h = require('snabbdom/h')
 
 const userView = state => {
+  const followers = state.get("followerCount")
+  let followersSentence;
+  if (!followers && followers !== 0) {
+    followersSentence = ""
+  } else {
+    followersSentence = `${followers} followers`
+  }
+
   return div({
     selector: '.user-card',
     style: { transition: 'opacity 1s', opacity: '1', destroy: { opacity: "0" }},
@@ -19,7 +27,7 @@ const userView = state => {
           h3({
             selector: '.followers',
             inner: [
-              `${state.get("followerCount")} followers`
+              followersSentence
             ]
           })
         ]
