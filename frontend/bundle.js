@@ -21434,7 +21434,7 @@ var _h = __webpack_require__(33);
 
 var _h2 = _interopRequireDefault(_h);
 
-var _view = __webpack_require__(217);
+var _view = __webpack_require__(709);
 
 var _view2 = _interopRequireDefault(_view);
 
@@ -26858,22 +26858,9 @@ var searchSuggestions = function searchSuggestions() {
     return $listRoot.empty();
   });
 
-  var suggestedUsers$ = suggestionRequests$.distinctUntilChanged().debounceTime(350).switchMap(getSuggestedUsers).pluck('data'
+  var suggestedUsers$ = suggestionRequests$.distinctUntilChanged().debounceTime(350).switchMap(getSuggestedUsers).pluck('data');
 
-  /* * What happens here? When you clear the suggestions by submitting a search, or deleting
-          every character from the search field, the following code will:
-  * * flatMap:  map (replace) the stream of clear-suggestion-events to a stream
-      of suggested users coming in from the API
-    * * takeUntil: the new mapped stream of user suggestions is terminated at the next
-        clear suggestions event.
-  * * forEach: what to do for every suggestedUser event between the beginning and ending clear
-        suggestion events
-  * * The window is exclusive of the bounding clear suggestion events, so we've had to multicast the
-        stream and clear suggestions separately (line 55)
-  * * BUT WHY?  --- user suggestions are requested on keyup, search submissions and clear
-        suggestions events are on keydown. We don't want to submit a search and clear the
-        suggestions only for them to reappear when we release the enter key */
-  );clearSuggestions$.flatMap(function () {
+  clearSuggestions$.flatMap(function () {
     return suggestedUsers$.takeUntil(clearSuggestions$);
   }).forEach(function (res) {
     $listRoot.empty().append(_jquery2.default.map(res, function (u) {
@@ -27259,189 +27246,10 @@ function reduceValues(unction) {
 } /* eslint-disable immutable/no-let */
 
 /***/ }),
-/* 214 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _snabbdomHelpers = __webpack_require__(78);
-
-var _jquery = __webpack_require__(81);
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var h = __webpack_require__(33);
-
-var followersView = function followersView(state) {
-  var followers = state.map(function (follower, i) {
-    return (0, _snabbdomHelpers.div)({
-      selector: '.follower-card',
-      on: { click: function click() {
-          (0, _jquery2.default)('input').val(follower.get('login'));
-          (0, _jquery2.default)('form').trigger('submit');
-        }
-      },
-      style: {
-        transform: 'translateY(750px)',
-        transition: '.75s transform ' + Math.floor(i % 30 / 2) * .1 + 's, .5s background-color ease-out, .5s outline ease-out',
-        delayed: { transform: 'none' },
-        destroy: { opacity: '0', transition: "opacity 1s" }
-      },
-      inner: [(0, _snabbdomHelpers.div)({
-        selector: '.small-avatar',
-        style: { backgroundImage: 'url(' + follower.get('avatar_url') + ')' }
-      }), (0, _snabbdomHelpers.h4)({ selector: '.follower-login', inner: '' + follower.get('login') })]
-    });
-  });
-
-  if (followers.size % 2 !== 0) {
-    followers = followers.push((0, _snabbdomHelpers.div)({ style: { visibility: 'hidden', width: "45%" } }));
-  }
-
-  return (0, _snabbdomHelpers.div)({
-    selector: '.followers-list flex',
-    inner: followers.toJS()
-  });
-};
-
-exports.default = followersView;
-
-/***/ }),
-/* 215 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _snabbdomHelpers = __webpack_require__(78);
-
-var paginationView = function paginationView(state, broadcast) {
-  return (0, _snabbdomHelpers.div)({
-    selector: '.load-button' + (state.get('hasMore') ? "" : ' .disabled'),
-    on: { click: function click() {
-        return broadcast(state.get('nextPage'));
-      } },
-    style: { opacity: '.7', transition: 'all .5s', update: { opacity: 0 } },
-    inner: ["Load More Followers"],
-    data: {
-      nextPage: state.get('nextPage')
-    }
-  });
-};
-
-exports.default = paginationView;
-
-/***/ }),
-/* 216 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _snabbdomHelpers = __webpack_require__(78);
-
-var h = __webpack_require__(33);
-
-var userView = function userView(state) {
-  var followers = state.get("followerCount");
-  var followersSentence = void 0;
-  if (!followers && followers !== 0) {
-    followersSentence = "";
-  } else {
-    followersSentence = followers + ' followers';
-  }
-
-  return (0, _snabbdomHelpers.div)({
-    selector: '.user-card',
-    style: { transition: 'opacity 1s', opacity: '1', destroy: { opacity: "0" } },
-    inner: [(0, _snabbdomHelpers.div)({
-      selector: '.user-details',
-      inner: [(0, _snabbdomHelpers.h2)({
-        on: { click: function click() {
-            return location.assign(state.get('url'));
-          } },
-        selector: '.user-name',
-        inner: ['' + state.get("login")]
-      }), (0, _snabbdomHelpers.h3)({
-        selector: '.followers',
-        inner: [followersSentence]
-      })]
-    }), (0, _snabbdomHelpers.div)({
-      selector: '.avatar',
-      style: { backgroundImage: 'url(' + state.get('avatarUrl') + ')' },
-      on: { click: function click() {
-          return location.assign('' + state.get('url'));
-        } }
-    })]
-  });
-};
-exports.default = userView;
-
-/***/ }),
-/* 217 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _snabbdomHelpers = __webpack_require__(78);
-
-var _immutable = __webpack_require__(50);
-
-var _userView = __webpack_require__(216);
-
-var _userView2 = _interopRequireDefault(_userView);
-
-var _paginationView = __webpack_require__(215);
-
-var _paginationView2 = _interopRequireDefault(_paginationView);
-
-var _followersView = __webpack_require__(214);
-
-var _followersView2 = _interopRequireDefault(_followersView);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var h = __webpack_require__(33);
-
-var view = function view(state, broadcast) {
-  var hasUser = !!state.getIn(['user', 'login']);
-  return (0, _snabbdomHelpers.section)({
-    inner: hasUser ? [(0, _snabbdomHelpers.div)({
-      selector: '.results-container',
-      inner: [(0, _userView2.default)(state.get('user')), (0, _followersView2.default)(state.get('followers')), (0, _paginationView2.default)(state.get('pagination'), broadcast)],
-      style: {
-        transform: 'translate(-50%, 80vh)',
-        opacity: '0',
-        transition: 'transform .75s, opacity 1s',
-        remove: { opacity: "0", transform: "translateX(-50%, 0vh)" },
-        delayed: { transform: 'translate(-50%, 0vh)', opacity: "1" }
-      }
-    })] : []
-  });
-};
-exports.default = view;
-
-/***/ }),
+/* 214 */,
+/* 215 */,
+/* 216 */,
+/* 217 */,
 /* 218 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -49631,6 +49439,189 @@ exports.thunk = function thunk(sel, key, fn, args) {
 };
 exports.default = exports.thunk;
 //# sourceMappingURL=thunk.js.map
+
+/***/ }),
+/* 706 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdomHelpers = __webpack_require__(78);
+
+var _jquery = __webpack_require__(81);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var h = __webpack_require__(33);
+
+var followersView = function followersView(state) {
+  var followers = state.map(function (follower, i) {
+    return (0, _snabbdomHelpers.div)({
+      selector: '.follower-card',
+      on: { click: function click() {
+          (0, _jquery2.default)('input').val(follower.get('login'));
+          (0, _jquery2.default)('form').trigger('submit');
+        }
+      },
+      style: {
+        transform: 'translateY(750px)',
+        transition: '.75s transform ' + Math.floor(i % 30 / 2) * .1 + 's, .5s background-color ease-out, .5s outline ease-out',
+        delayed: { transform: 'none' },
+        destroy: { opacity: '0', transition: "opacity 1s" }
+      },
+      inner: [(0, _snabbdomHelpers.div)({
+        selector: '.small-avatar',
+        style: { backgroundImage: 'url(' + follower.get('avatar_url') + ')' }
+      }), (0, _snabbdomHelpers.h4)({ selector: '.follower-login', inner: '' + follower.get('login') })]
+    });
+  });
+
+  if (followers.size % 2 !== 0) {
+    followers = followers.push((0, _snabbdomHelpers.div)({ style: { visibility: 'hidden', width: "45%" } }));
+  }
+
+  return (0, _snabbdomHelpers.div)({
+    selector: '.followers-list flex',
+    inner: followers.toJS()
+  });
+};
+
+exports.default = followersView;
+
+/***/ }),
+/* 707 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdomHelpers = __webpack_require__(78);
+
+var paginationView = function paginationView(state, broadcast) {
+  return (0, _snabbdomHelpers.div)({
+    selector: '.load-button' + (state.get('hasMore') ? "" : ' .disabled'),
+    on: { click: function click() {
+        return broadcast(state.get('nextPage'));
+      } },
+    style: { opacity: '.7', transition: 'all .5s', update: { opacity: 0 } },
+    inner: ["Load More Followers"],
+    data: {
+      nextPage: state.get('nextPage')
+    }
+  });
+};
+
+exports.default = paginationView;
+
+/***/ }),
+/* 708 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdomHelpers = __webpack_require__(78);
+
+var h = __webpack_require__(33);
+
+var userView = function userView(state) {
+  var followers = state.get("followerCount");
+  var followersSentence = void 0;
+  if (!followers && followers !== 0) {
+    followersSentence = "";
+  } else {
+    followersSentence = followers + ' followers';
+  }
+
+  return (0, _snabbdomHelpers.div)({
+    selector: '.user-card',
+    style: { transition: 'opacity 1s', opacity: '1', destroy: { opacity: "0" } },
+    inner: [(0, _snabbdomHelpers.div)({
+      selector: '.user-details',
+      inner: [(0, _snabbdomHelpers.h2)({
+        on: { click: function click() {
+            return location.assign(state.get('url'));
+          } },
+        selector: '.user-name',
+        inner: ['' + state.get("login")]
+      }), (0, _snabbdomHelpers.h3)({
+        selector: '.followers',
+        inner: [followersSentence]
+      })]
+    }), (0, _snabbdomHelpers.div)({
+      selector: '.avatar',
+      style: { backgroundImage: 'url(' + state.get('avatarUrl') + ')' },
+      on: { click: function click() {
+          return location.assign('' + state.get('url'));
+        } }
+    })]
+  });
+};
+exports.default = userView;
+
+/***/ }),
+/* 709 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdomHelpers = __webpack_require__(78);
+
+var _immutable = __webpack_require__(50);
+
+var _userView = __webpack_require__(708);
+
+var _userView2 = _interopRequireDefault(_userView);
+
+var _paginationView = __webpack_require__(707);
+
+var _paginationView2 = _interopRequireDefault(_paginationView);
+
+var _followersView = __webpack_require__(706);
+
+var _followersView2 = _interopRequireDefault(_followersView);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var h = __webpack_require__(33);
+
+var view = function view(state, broadcast) {
+  var hasUser = !!state.getIn(['user', 'login']);
+  return (0, _snabbdomHelpers.section)({
+    inner: hasUser ? [(0, _snabbdomHelpers.div)({
+      selector: '.results-container',
+      inner: [(0, _userView2.default)(state.get('user')), (0, _followersView2.default)(state.get('followers')), (0, _paginationView2.default)(state.get('pagination'), broadcast)],
+      style: {
+        transform: 'translate(-50%, 80vh)',
+        opacity: '0',
+        transition: 'transform .75s, opacity 1s',
+        remove: { opacity: "0", transform: "translateX(-50%, 0vh)" },
+        delayed: { transform: 'translate(-50%, 0vh)', opacity: "1" }
+      }
+    })] : []
+  });
+};
+exports.default = view;
 
 /***/ })
 /******/ ]);
