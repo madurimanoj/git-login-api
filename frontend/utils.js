@@ -23,3 +23,13 @@ export const clearState = () => state => state.set('followers', new List()).set(
 export const userUrl = (user, secretKey) => `https://api.github.com/users/${user}?access_token=${secretKey}`
 
 export const followersUrl = (user, secretKey) => `https://api.github.com/users/${user}/followers?access_token=${secretKey}`
+
+export const setUserState = res => {
+  const newUserInfo = new Map({
+          avatarUrl: res.avatar_url,
+              login: res.login,
+                url: res.html_url,
+      followerCount: res.followers
+  })
+  return state => state.set('user', newUserInfo)
+}

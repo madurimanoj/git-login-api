@@ -21434,7 +21434,7 @@ var _h = __webpack_require__(33);
 
 var _h2 = _interopRequireDefault(_h);
 
-var _view = __webpack_require__(709);
+var _view = __webpack_require__(217);
 
 var _view2 = _interopRequireDefault(_view);
 
@@ -21461,7 +21461,7 @@ exports.default = createRenderer;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.followersUrl = exports.userUrl = exports.clearState = exports.formatURL = exports.scroll = exports.$select = exports.$unselect = exports.$prev = exports.$next = undefined;
+exports.setUserState = exports.followersUrl = exports.userUrl = exports.clearState = exports.formatURL = exports.scroll = exports.$select = exports.$unselect = exports.$prev = exports.$next = undefined;
 
 var _immutable = __webpack_require__(50);
 
@@ -21517,6 +21517,18 @@ var userUrl = exports.userUrl = function userUrl(user, secretKey) {
 
 var followersUrl = exports.followersUrl = function followersUrl(user, secretKey) {
   return 'https://api.github.com/users/' + user + '/followers?access_token=' + secretKey;
+};
+
+var setUserState = exports.setUserState = function setUserState(res) {
+  var newUserInfo = new _immutable.Map({
+    avatarUrl: res.avatar_url,
+    login: res.login,
+    url: res.html_url,
+    followerCount: res.followers
+  });
+  return function (state) {
+    return state.set('user', newUserInfo);
+  };
 };
 
 /***/ }),
@@ -26651,7 +26663,7 @@ module.exports = g;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 
 var _rxjs = __webpack_require__(169);
@@ -26677,90 +26689,77 @@ var _vdom2 = _interopRequireDefault(_vdom);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var initializeAppStore = function initializeAppStore() {
-  var subject = new _rxjs2.default.Subject();
-  var source$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit');
-  var searchStreamMulticast = source$.multicast(subject);
-  searchStreamMulticast.connect();
+    var subject = new _rxjs2.default.Subject();
+    var source$ = _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit');
+    var searchStreamMulticast = source$.multicast(subject);
 
-  var loadMoreUsersSubject = new _rxjs2.default.Subject();
-  var broadcast = function broadcast(url) {
-    return loadMoreUsersSubject.next(url);
-  };
-
-  var $input = (0, _jquery2.default)('#input_text'
-
-  // Getting both the user info for the search and the user's followers.
-
-  );var followerRequests$ = searchStreamMulticast.map(function (e) {
-    e.preventDefault();
-    return (0, _utils.followersUrl)($input.val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
-  }).merge(loadMoreUsersSubject).map(function (requestUrl) {
-    return _jquery2.default.ajax({ url: requestUrl });
-  });
-
-  var followersStream$ = followerRequests$.flatMap(function (res) {
-    return _rxjs2.default.Observable.fromPromise(res).catch(function (err) {
-      return _rxjs2.default.Observable.empty();
-    }).map(function (res) {
-      return function (state) {
-        var newState = state.get('followers').concat((0, _immutable.fromJS)(res));
-        return state.set("followers", newState);
-      };
-    });
-  });
-
-  var userStream$ = searchStreamMulticast.map(function (e) {
-    return (0, _utils.userUrl)((0, _jquery2.default)($input).val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
-  }).flatMap(function (requestUrl) {
-    return _rxjs2.default.Observable.fromPromise(_jquery2.default.ajax({ url: requestUrl })).catch(function (err) {
-      return _rxjs2.default.Observable.create(function (obs) {
-        return obs.next({
-          avatar_url: '',
-          followers: null,
-          html_url: 'https://github.com',
-          login: 'User Not Found'
-        });
-      });
-    }).map(function (res) {
-      return function (state) {
-        var newUserInfo = new _immutable.Map({
-          avatarUrl: res.avatar_url,
-          followerCount: res.followers,
-          url: res.html_url,
-          login: res.login
-        });
-        return state.set("user", newUserInfo);
-      };
-    });
-  }
-
-  // Load More Button
-
-  );var paginationStream$ = followerRequests$.flatMap(function (res) {
-    return res.then(function (data, s, xhr) {
-      return (0, _utils.formatURL)(xhr.getResponseHeader('link'));
-    }).catch(function (err) {
-      return null;
-    });
-  }).map(function (link) {
-    return function (state) {
-      var hasMore = link && link.slice(link.length - 1) !== "1";
-      return state.set("pagination", new _immutable.Map({ hasMore: hasMore, nextPage: link }));
+    var loadMoreUsersSubject = new _rxjs2.default.Subject();
+    var broadcast = function broadcast(url) {
+        return loadMoreUsersSubject.next(url);
     };
-  }
-  // state store
+    var $input = (0, _jquery2.default)('#input_text');
 
-  );var state = _rxjs2.default.Observable.merge(searchStreamMulticast.map(_utils.clearState), followersStream$, paginationStream$, userStream$
-  // .retry()
-  ).scan(function (state, updateFn) {
-    return updateFn(state);
-  }, _initialState2.default);
+    searchStreamMulticast.connect
 
-  return {
-    state: state,
-    broadcast: broadcast,
-    initialState: _initialState2.default
-  };
+    // Getting both the user info for the search and the user's followers.
+
+    ();var followerRequests$ = searchStreamMulticast.map(function (e) {
+        e.preventDefault();
+        return (0, _utils.followersUrl)($input.val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
+    }).merge(loadMoreUsersSubject).map(function (requestUrl) {
+        return _jquery2.default.ajax({ url: requestUrl });
+    });
+
+    var followersStream$ = followerRequests$.flatMap(function (res) {
+        return _rxjs2.default.Observable.fromPromise(res).catch(function (err) {
+            return _rxjs2.default.Observable.empty();
+        }).map(function (res) {
+            return function (state) {
+                return state.set('followers', state.get('followers').concat((0, _immutable.fromJS)(res)));
+            };
+        });
+    });
+
+    var userStream$ = searchStreamMulticast.map(function (e) {
+        return (0, _utils.userUrl)((0, _jquery2.default)($input).val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
+    }).flatMap(function (requestUrl) {
+        return _rxjs2.default.Observable.fromPromise(_jquery2.default.ajax({ url: requestUrl })).catch(function (err) {
+            return _rxjs2.default.Observable.create(function (obs) {
+                return obs.next({
+                    followers: null,
+                    avatar_url: '',
+                    login: 'User Not Found',
+                    html_url: 'https://github.com'
+                });
+            });
+        }).map(function (res) {
+            return (0, _utils.setUserState)(res);
+        });
+    }
+
+    // Load More Button
+
+    );var paginationStream$ = followerRequests$.flatMap(function (res) {
+        return res.then(function (data, s, xhr) {
+            return (0, _utils.formatURL)(xhr.getResponseHeader('link'));
+        }).catch(function (err) {
+            return null;
+        });
+    }).map(function (link) {
+        return function (state) {
+            var hasMore = link && link.slice(link.length - 1) !== "1";
+            return state.set("pagination", new _immutable.Map({ hasMore: hasMore, nextPage: link }));
+        };
+    }
+
+    // state store
+
+    );var streams = _rxjs2.default.Observable.merge(searchStreamMulticast.map(_utils.clearState), followersStream$, paginationStream$, userStream$);
+    var state = streams.scan(function (state, updateFn) {
+        return updateFn(state);
+    }, _initialState2.default);
+
+    return { state: state, broadcast: broadcast, initialState: _initialState2.default };
 };
 
 exports.default = initializeAppStore;
@@ -27246,10 +27245,190 @@ function reduceValues(unction) {
 } /* eslint-disable immutable/no-let */
 
 /***/ }),
-/* 214 */,
-/* 215 */,
-/* 216 */,
-/* 217 */,
+/* 214 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdomHelpers = __webpack_require__(78);
+
+var _jquery = __webpack_require__(81);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _h = __webpack_require__(33);
+
+var _h2 = _interopRequireDefault(_h);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var followersView = function followersView(state) {
+  var followers = state.map(function (follower, i) {
+    return (0, _h2.default)("div.follower-card", {
+      key: follower.get('login'),
+      on: { click: function click() {
+          (0, _jquery2.default)('input').val(follower.get('login'));
+          (0, _jquery2.default)('form').trigger('submit');
+        }
+      },
+      style: {
+        transform: 'translateY(750px)',
+        transition: '.75s transform ' + Math.floor(i % 30 / 2) * .1 + 's, .5s background-color ease-out, .5s outline ease-out',
+        delayed: { transform: 'none' },
+        destroy: { opacity: '0', transition: "opacity 1s" }
+      }
+    }, [(0, _snabbdomHelpers.div)({
+      selector: '.small-avatar',
+      style: { backgroundImage: 'url(' + follower.get('avatar_url') + ')' }
+    }), (0, _snabbdomHelpers.h4)({ selector: '.follower-login', inner: '' + follower.get('login') })]);
+  });
+
+  if (followers.size % 2 !== 0) {
+    followers = followers.push((0, _snabbdomHelpers.div)({ style: { visibility: 'hidden', width: "45%" } }));
+  }
+
+  return (0, _snabbdomHelpers.div)({
+    selector: '.followers-list flex',
+    inner: followers.toJS()
+  });
+};
+
+exports.default = followersView;
+
+/***/ }),
+/* 215 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdomHelpers = __webpack_require__(78);
+
+var paginationView = function paginationView(state, broadcast) {
+  return (0, _snabbdomHelpers.div)({
+    selector: '.load-button' + (state.get('hasMore') ? "" : ' .disabled'),
+    on: { click: function click() {
+        return broadcast(state.get('nextPage'));
+      } },
+    style: { opacity: '.7', transition: 'all .5s', update: { opacity: 0 } },
+    inner: ["Load More Followers"],
+    data: {
+      nextPage: state.get('nextPage')
+    }
+  });
+};
+
+exports.default = paginationView;
+
+/***/ }),
+/* 216 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdomHelpers = __webpack_require__(78);
+
+var h = __webpack_require__(33);
+
+var userView = function userView(state) {
+  var followers = state.get("followerCount");
+  var followersSentence = void 0;
+  if (!followers && followers !== 0) {
+    followersSentence = "";
+  } else {
+    followersSentence = followers + ' followers';
+  }
+
+  return (0, _snabbdomHelpers.div)({
+    selector: '.user-card',
+    style: { transition: 'opacity 1s', opacity: '1', destroy: { opacity: "0" } },
+    inner: [(0, _snabbdomHelpers.div)({
+      selector: '.user-details',
+      inner: [(0, _snabbdomHelpers.h2)({
+        on: { click: function click() {
+            return location.assign(state.get('url'));
+          } },
+        selector: '.user-name',
+        inner: ['' + state.get("login")]
+      }), (0, _snabbdomHelpers.h3)({
+        selector: '.followers',
+        inner: [followersSentence]
+      })]
+    }), (0, _snabbdomHelpers.div)({
+      selector: '.avatar',
+      style: { backgroundImage: 'url(' + state.get('avatarUrl') + ')' },
+      on: { click: function click() {
+          return location.assign('' + state.get('url'));
+        } }
+    })]
+  });
+};
+exports.default = userView;
+
+/***/ }),
+/* 217 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _snabbdomHelpers = __webpack_require__(78);
+
+var _immutable = __webpack_require__(50);
+
+var _userView = __webpack_require__(216);
+
+var _userView2 = _interopRequireDefault(_userView);
+
+var _paginationView = __webpack_require__(215);
+
+var _paginationView2 = _interopRequireDefault(_paginationView);
+
+var _followersView = __webpack_require__(214);
+
+var _followersView2 = _interopRequireDefault(_followersView);
+
+var _h = __webpack_require__(33);
+
+var _h2 = _interopRequireDefault(_h);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var view = function view(state, broadcast) {
+  var hasUser = !!state.getIn(['user', 'login']);
+  return (0, _h2.default)('section', {}, hasUser ? [(0, _snabbdomHelpers.div)({
+    selector: '.results-container',
+    inner: [(0, _userView2.default)(state.get('user')), (0, _followersView2.default)(state.get('followers')), (0, _paginationView2.default)(state.get('pagination'), broadcast)],
+    style: {
+      transform: 'translate(-50%, 80vh)',
+      opacity: '0',
+      transition: 'transform .75s, opacity 1s',
+      remove: { opacity: "0", transform: "translateX(-50%, 0vh)" },
+      delayed: { transform: 'translate(-50%, 0vh)', opacity: "1" }
+    }
+  })] : []);
+};
+exports.default = view;
+
+/***/ }),
 /* 218 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -49439,189 +49618,6 @@ exports.thunk = function thunk(sel, key, fn, args) {
 };
 exports.default = exports.thunk;
 //# sourceMappingURL=thunk.js.map
-
-/***/ }),
-/* 706 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _snabbdomHelpers = __webpack_require__(78);
-
-var _jquery = __webpack_require__(81);
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var h = __webpack_require__(33);
-
-var followersView = function followersView(state) {
-  var followers = state.map(function (follower, i) {
-    return (0, _snabbdomHelpers.div)({
-      selector: '.follower-card',
-      on: { click: function click() {
-          (0, _jquery2.default)('input').val(follower.get('login'));
-          (0, _jquery2.default)('form').trigger('submit');
-        }
-      },
-      style: {
-        transform: 'translateY(750px)',
-        transition: '.75s transform ' + Math.floor(i % 30 / 2) * .1 + 's, .5s background-color ease-out, .5s outline ease-out',
-        delayed: { transform: 'none' },
-        destroy: { opacity: '0', transition: "opacity 1s" }
-      },
-      inner: [(0, _snabbdomHelpers.div)({
-        selector: '.small-avatar',
-        style: { backgroundImage: 'url(' + follower.get('avatar_url') + ')' }
-      }), (0, _snabbdomHelpers.h4)({ selector: '.follower-login', inner: '' + follower.get('login') })]
-    });
-  });
-
-  if (followers.size % 2 !== 0) {
-    followers = followers.push((0, _snabbdomHelpers.div)({ style: { visibility: 'hidden', width: "45%" } }));
-  }
-
-  return (0, _snabbdomHelpers.div)({
-    selector: '.followers-list flex',
-    inner: followers.toJS()
-  });
-};
-
-exports.default = followersView;
-
-/***/ }),
-/* 707 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _snabbdomHelpers = __webpack_require__(78);
-
-var paginationView = function paginationView(state, broadcast) {
-  return (0, _snabbdomHelpers.div)({
-    selector: '.load-button' + (state.get('hasMore') ? "" : ' .disabled'),
-    on: { click: function click() {
-        return broadcast(state.get('nextPage'));
-      } },
-    style: { opacity: '.7', transition: 'all .5s', update: { opacity: 0 } },
-    inner: ["Load More Followers"],
-    data: {
-      nextPage: state.get('nextPage')
-    }
-  });
-};
-
-exports.default = paginationView;
-
-/***/ }),
-/* 708 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _snabbdomHelpers = __webpack_require__(78);
-
-var h = __webpack_require__(33);
-
-var userView = function userView(state) {
-  var followers = state.get("followerCount");
-  var followersSentence = void 0;
-  if (!followers && followers !== 0) {
-    followersSentence = "";
-  } else {
-    followersSentence = followers + ' followers';
-  }
-
-  return (0, _snabbdomHelpers.div)({
-    selector: '.user-card',
-    style: { transition: 'opacity 1s', opacity: '1', destroy: { opacity: "0" } },
-    inner: [(0, _snabbdomHelpers.div)({
-      selector: '.user-details',
-      inner: [(0, _snabbdomHelpers.h2)({
-        on: { click: function click() {
-            return location.assign(state.get('url'));
-          } },
-        selector: '.user-name',
-        inner: ['' + state.get("login")]
-      }), (0, _snabbdomHelpers.h3)({
-        selector: '.followers',
-        inner: [followersSentence]
-      })]
-    }), (0, _snabbdomHelpers.div)({
-      selector: '.avatar',
-      style: { backgroundImage: 'url(' + state.get('avatarUrl') + ')' },
-      on: { click: function click() {
-          return location.assign('' + state.get('url'));
-        } }
-    })]
-  });
-};
-exports.default = userView;
-
-/***/ }),
-/* 709 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _snabbdomHelpers = __webpack_require__(78);
-
-var _immutable = __webpack_require__(50);
-
-var _userView = __webpack_require__(708);
-
-var _userView2 = _interopRequireDefault(_userView);
-
-var _paginationView = __webpack_require__(707);
-
-var _paginationView2 = _interopRequireDefault(_paginationView);
-
-var _followersView = __webpack_require__(706);
-
-var _followersView2 = _interopRequireDefault(_followersView);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var h = __webpack_require__(33);
-
-var view = function view(state, broadcast) {
-  var hasUser = !!state.getIn(['user', 'login']);
-  return (0, _snabbdomHelpers.section)({
-    inner: hasUser ? [(0, _snabbdomHelpers.div)({
-      selector: '.results-container',
-      inner: [(0, _userView2.default)(state.get('user')), (0, _followersView2.default)(state.get('followers')), (0, _paginationView2.default)(state.get('pagination'), broadcast)],
-      style: {
-        transform: 'translate(-50%, 80vh)',
-        opacity: '0',
-        transition: 'transform .75s, opacity 1s',
-        remove: { opacity: "0", transform: "translateX(-50%, 0vh)" },
-        delayed: { transform: 'translate(-50%, 0vh)', opacity: "1" }
-      }
-    })] : []
-  });
-};
-exports.default = view;
 
 /***/ })
 /******/ ]);
