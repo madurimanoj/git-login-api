@@ -35,7 +35,7 @@ const initializeAppStore = () => {
         })
         .merge(loadMoreUsersSubject)
         .map(requestUrl => $.ajax({ url: requestUrl }))
-
+        .share()
 
 
     const followersStream$ = followerRequests$

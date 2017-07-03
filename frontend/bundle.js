@@ -26708,7 +26708,7 @@ var initializeAppStore = function initializeAppStore() {
         return (0, _utils.followersUrl)($input.val(), "4bb0669abd8362d0ace4da649ff914ab899de0ca");
     }).merge(loadMoreUsersSubject).map(function (requestUrl) {
         return _jquery2.default.ajax({ url: requestUrl });
-    });
+    }).share();
 
     var followersStream$ = followerRequests$.flatMap(function (res) {
         return _rxjs2.default.Observable.fromPromise(res).catch(function (err) {
