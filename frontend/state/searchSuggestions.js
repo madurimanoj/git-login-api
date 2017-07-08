@@ -25,7 +25,8 @@ const searchSuggestions = () => {
     .forEach(args =>
       $(`.selected`).length ? scroll($(`.selected`), args[1]) : $select($(`.user:${args[0]}`)))
 
-  const multicasted = enterKeys$.multicast(subject)
+
+  const multicasted = enterKeys$.multicast(subject) //multicast allows 2+ streams to share an event
   multicasted.connect()
   multicasted.filter(e => $('.selected').length > 0)
     .merge(

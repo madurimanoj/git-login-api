@@ -26821,8 +26821,8 @@ var searchSuggestions = function searchSuggestions() {
     return (0, _jquery2.default)('.selected').length ? (0, _utils.scroll)((0, _jquery2.default)('.selected'), args[1]) : (0, _utils.$select)((0, _jquery2.default)('.user:' + args[0]));
   });
 
-  var multicasted = enterKeys$.multicast(subject);
-  multicasted.connect();
+  var multicasted = enterKeys$.multicast(subject //multicast allows 2+ streams to share an event
+  );multicasted.connect();
   multicasted.filter(function (e) {
     return (0, _jquery2.default)('.selected').length > 0;
   }).merge(_rxjs2.default.Observable.fromEvent((0, _jquery2.default)(document), 'mousedown').filter(function (e) {
