@@ -28,7 +28,7 @@ const searchSuggestions = () => {
 
   const multicasted = enterKeys$.multicast(subject) //multicast allows 2+ streams to share an event
   multicasted.connect()
-  multicasted.filter(e => $('.selected').length > 0)
+  multicasted.filter(() => $('.selected').length > 0)
     .merge(
       Rx.Observable.fromEvent($(document), 'mousedown')
         .filter(e => e.target.classList.contains('selected')))
@@ -38,7 +38,7 @@ const searchSuggestions = () => {
     })
 
     // makes suggestions clickable.
-  Rx.Observable.fromEvent($('.input-field'),'mouseover')
+  Rx.Observable.fromEvent($('.input-field'),'mouseenter')
     .flatMap(e => Rx.Observable.fromEvent($('.collection-item'), 'mouseenter'))
     .forEach(e => $(e.currentTarget).addClass('selected').siblings().removeClass('selected'))
 
