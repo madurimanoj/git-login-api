@@ -63,7 +63,7 @@ const searchSuggestions = () => {
 
 
   clearSuggestions$
-    .flatMap(() => suggestedUsers$.takeUntil(clearSuggestions$))
+    .flatMap(() => suggestedUsers$)
     .forEach(res => {
       $listRoot
         .empty()
