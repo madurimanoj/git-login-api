@@ -42,7 +42,7 @@ const searchSuggestions = () => {
 
 
    // form submits are being preventDefault'd elsewhere. must manually blur inputs/clear suggestions
-  Rx.Observable.fromEvent($('form'), 'submit').forEach(() => $input.blur())
+  // Rx.Observable.fromEvent($('form'), 'submit').forEach(() => $input.blur())
 
   const [suggestionRequests$, clearSearchField$] = Rx.Observable.fromEvent($input, 'keyup')
     .pluck("target", "value")
