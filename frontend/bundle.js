@@ -26852,7 +26852,6 @@ var searchSuggestions = function searchSuggestions() {
       clearSearchField$ = _Rx$Observable$fromEv4[1];
 
   var clearSuggestions$ = _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$);
-
   var clearSuggestions2$ = clearSuggestions$.share().forEach(function () {
     return $listRoot.empty();
   });
@@ -26860,7 +26859,7 @@ var searchSuggestions = function searchSuggestions() {
   var suggestedUsers$ = suggestionRequests$.distinctUntilChanged().debounceTime(350).switchMap(getSuggestedUsers).pluck('data');
 
   clearSuggestions$.flatMap(function () {
-    return suggestedUsers$.takeUntil(clearSuggestions$);
+    return suggestedUsers$;
   }).forEach(function (res) {
     $listRoot.empty().append(_jquery2.default.map(res, function (u) {
       return (0, _jquery2.default)('<div class="collection-item user">' + u.login + '</div>');
