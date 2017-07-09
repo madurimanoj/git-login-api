@@ -26838,9 +26838,10 @@ var searchSuggestions = function searchSuggestions() {
   }
 
   // form submits are being preventDefault'd elsewhere. must manually blur inputs/clear suggestions
-  // Rx.Observable.fromEvent($('form'), 'submit').forEach(() => $input.blur())
+  );_rxjs2.default.Observable.fromEvent((0, _jquery2.default)('form'), 'submit').forEach(function () {
+    return $input.blur();
+  });
 
-  );
   var _Rx$Observable$fromEv3 = _rxjs2.default.Observable.fromEvent($input, 'keyup').pluck("target", "value").partition(function (text) {
     return text && text.length > 2;
   }),
