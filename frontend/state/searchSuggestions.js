@@ -56,15 +56,10 @@ const searchSuggestions = () => {
     .debounceTime(350)
     .switchMap(getSuggestedUsers)
     .pluck('data')
-
-
-  /*clearSuggestions$
-    .flatMap(() => */suggestedUsers$/*.takeUntil(clearSuggestions$))*/
-    .forEach(res => {
-      $listRoot
-        .empty()
+    .forEach(res =>
+      $listRoot.empty()
         .append($.map(res, (u) => $(`<div class="collection-item user">${u.login}</div>`)))
-  })
+  )
 
 }
 

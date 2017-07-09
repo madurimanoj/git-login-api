@@ -26854,12 +26854,8 @@ var searchSuggestions = function searchSuggestions() {
     return $listRoot.empty();
   });
 
-  var suggestedUsers$ = suggestionRequests$.distinctUntilChanged().debounceTime(350).switchMap(getSuggestedUsers).pluck('data'
-
-  /*clearSuggestions$
-    .flatMap(() => */);suggestedUsers$ /*.takeUntil(clearSuggestions$))*/
-  .forEach(function (res) {
-    $listRoot.empty().append(_jquery2.default.map(res, function (u) {
+  var suggestedUsers$ = suggestionRequests$.distinctUntilChanged().debounceTime(350).switchMap(getSuggestedUsers).pluck('data').forEach(function (res) {
+    return $listRoot.empty().append(_jquery2.default.map(res, function (u) {
       return (0, _jquery2.default)('<div class="collection-item user">' + u.login + '</div>');
     }));
   });
