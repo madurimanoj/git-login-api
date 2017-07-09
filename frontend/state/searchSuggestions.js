@@ -50,8 +50,7 @@ const searchSuggestions = () => {
     .pluck("target", "value")
     .partition(text => text && text.length > 2)
 
-  const clearSuggestions$ = Rx.Observable.fromEvent($input, 'blur')
-    .merge(clearSearchField$, multicasted)
+  const clearSuggestions$ = Rx.Observable.fromEvent($input, 'blur').merge(clearSearchField$)
 
   const clearSuggestions2$ = clearSuggestions$.share().forEach(() => $listRoot.empty())
 
