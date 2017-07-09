@@ -26849,8 +26849,7 @@ var searchSuggestions = function searchSuggestions() {
       suggestionRequests$ = _Rx$Observable$fromEv4[0],
       clearSearchField$ = _Rx$Observable$fromEv4[1];
 
-  var clearSuggestions$ = _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$);
-  var clearSuggestions2$ = clearSuggestions$.share().forEach(function () {
+  _rxjs2.default.Observable.fromEvent($input, 'blur').merge(clearSearchField$).forEach(function () {
     return $listRoot.empty();
   });
 
