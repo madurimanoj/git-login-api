@@ -26831,7 +26831,7 @@ var searchSuggestions = function searchSuggestions() {
   }
 
   // makes suggestions clickable.
-  );_rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.input-field'), 'mouseenter').flatMap(function (e) {
+  );_rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.input-field'), 'mouseover').flatMap(function (e) {
     return _rxjs2.default.Observable.fromEvent((0, _jquery2.default)('.collection-item'), 'mouseenter');
   }).forEach(function (e) {
     return (0, _jquery2.default)(e.currentTarget).addClass('selected').siblings().removeClass('selected');

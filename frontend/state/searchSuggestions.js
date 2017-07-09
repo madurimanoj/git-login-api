@@ -36,7 +36,7 @@ const searchSuggestions = () => {
     })
 
     // makes suggestions clickable.
-  Rx.Observable.fromEvent($('.input-field'),'mouseenter')
+  Rx.Observable.fromEvent($('.input-field'),'mouseover')
     .flatMap(e => Rx.Observable.fromEvent($('.collection-item'), 'mouseenter'))
     .forEach(e => $(e.currentTarget).addClass('selected').siblings().removeClass('selected'))
 
