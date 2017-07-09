@@ -58,8 +58,8 @@ const searchSuggestions = () => {
     .pluck('data')
 
 
-  clearSuggestions$
-    .flatMap(() => suggestedUsers$.takeUntil(clearSuggestions$))
+  /*clearSuggestions$
+    .flatMap(() => */suggestedUsers$/*.takeUntil(clearSuggestions$))*/
     .forEach(res => {
       $listRoot
         .empty()

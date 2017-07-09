@@ -26854,11 +26854,11 @@ var searchSuggestions = function searchSuggestions() {
     return $listRoot.empty();
   });
 
-  var suggestedUsers$ = suggestionRequests$.distinctUntilChanged().debounceTime(350).switchMap(getSuggestedUsers).pluck('data');
+  var suggestedUsers$ = suggestionRequests$.distinctUntilChanged().debounceTime(350).switchMap(getSuggestedUsers).pluck('data'
 
-  clearSuggestions$.flatMap(function () {
-    return suggestedUsers$.takeUntil(clearSuggestions$);
-  }).forEach(function (res) {
+  /*clearSuggestions$
+    .flatMap(() => */);suggestedUsers$ /*.takeUntil(clearSuggestions$))*/
+  .forEach(function (res) {
     $listRoot.empty().append(_jquery2.default.map(res, function (u) {
       return (0, _jquery2.default)('<div class="collection-item user">' + u.login + '</div>');
     }));
