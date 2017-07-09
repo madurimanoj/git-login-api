@@ -26,9 +26,7 @@ const searchSuggestions = () => {
       $(`.selected`).length ? scroll($(`.selected`), args[1]) : $select($(`.user:${args[0]}`)))
 
 
-  const multicasted = enterKeys$.multicast(subject) //multicast allows 2+ streams to share an event
-  multicasted.connect()
-  multicasted.filter(() => $('.selected').length > 0)
+  enterKeys$.filter(() => $('.selected').length > 0)
     .merge(
       Rx.Observable.fromEvent($(document), 'mousedown')
         .filter(e => e.target.classList.contains('selected')))

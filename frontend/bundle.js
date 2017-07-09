@@ -26821,9 +26821,7 @@ var searchSuggestions = function searchSuggestions() {
     return (0, _jquery2.default)('.selected').length ? (0, _utils.scroll)((0, _jquery2.default)('.selected'), args[1]) : (0, _utils.$select)((0, _jquery2.default)('.user:' + args[0]));
   });
 
-  var multicasted = enterKeys$.multicast(subject //multicast allows 2+ streams to share an event
-  );multicasted.connect();
-  multicasted.filter(function () {
+  enterKeys$.filter(function () {
     return (0, _jquery2.default)('.selected').length > 0;
   }).merge(_rxjs2.default.Observable.fromEvent((0, _jquery2.default)(document), 'mousedown').filter(function (e) {
     return e.target.classList.contains('selected');
@@ -26859,7 +26857,7 @@ var searchSuggestions = function searchSuggestions() {
   var suggestedUsers$ = suggestionRequests$.distinctUntilChanged().debounceTime(350).switchMap(getSuggestedUsers).pluck('data');
 
   clearSuggestions$.flatMap(function () {
-    return suggestedUsers$;
+    return suggestedUsers$.takeUntil(clearSuggestions$);
   }).forEach(function (res) {
     $listRoot.empty().append(_jquery2.default.map(res, function (u) {
       return (0, _jquery2.default)('<div class="collection-item user">' + u.login + '</div>');
